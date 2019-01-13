@@ -1,0 +1,99 @@
+package yjh.helper
+
+class StringHelper {
+
+    String colclear(String src){
+        def desc = src
+        desc.replaceAll(" ","")
+
+    }
+    static List<List> s2ll(String s){
+        def rs = []
+        s.split("\n").toList().each {
+            rs.add(it.split("\t"))
+        }
+        return rs
+    }
+    static String u2g(String src){
+        return new String(src.getByte("unicode"),"GBK")
+    }
+
+    static String ll2s(List list){
+        def s = ""
+        list.each { l->
+            def unit = ""
+            l.each {
+                unit = "$unit\t$it"
+            }
+            s = s+unit.substring(1)+"!\n"
+        }
+        s
+    }
+
+    static List<List> f2ll(String filePath){
+        StringBuffer fileData = new StringBuffer();
+        //
+        BufferedReader reader = new BufferedReader(new FileReader(filePath));
+        char[] buf = new char[1024];
+        int numRead=0;
+        while((numRead=reader.read(buf)) != -1){
+            String readData = String.valueOf(buf, 0, numRead);
+            fileData.append(readData);
+        }
+        //缓冲区使用完必须关掉
+        reader.close();
+        return s2ll(fileData.toString())
+    }
+
+    static List getUnitArrange(List<List> list) {
+        return getUnitArrange(list,0)
+    }
+    static List getUnitArrange(List<String[]> list,def pid) {
+        def start = 0
+        List rl = []
+        for (i in 0..list.size()-1) {
+            if (i == list.size()-1) {
+                rl.push([start, i])
+                break
+            }
+            def value = list.get(i)[pid]//默认第一列是排序值
+            def value2 = list.get(i+1)[pid]//默认第一列是排序值
+            if (value == value2) {
+                continue
+            } else {
+                rl.push([start, i])
+                start = i + 1
+            }
+        }
+        return rl
+    }
+    static String excel1(String str){
+
+        List<String> strs = str.split(/\t|\n/)
+        strs=strs.reverse()
+        def out = ""
+        while(strs){
+            def left = strs.pop()
+            def right = strs.pop()
+            out+= "$left  $right\n"
+            if(right.contains("\"")){
+                right = strs.pop()
+                while(!right.contains("\"")){
+                    out+= "$left  $right\n"
+                    right = strs.pop()
+                }
+                out+= "$left  $right\n"
+            }
+        }
+        println out.replaceAll("\"","")
+    }
+
+    static main(args) {
+        def a = "decimal(10,2)"
+        a = a.replaceAll(/\(.*?\)/,"")
+        println(a)
+//        def b = (a =~ /\((.*?)\)/)
+//        b.find()
+//        println(b.group(1))
+    }
+}

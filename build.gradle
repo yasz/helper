@@ -1,0 +1,32 @@
+group 'yjh.helper'
+version '1.0-SNAPSHOT'
+
+repositories {
+    mavenLocal()
+    maven{ url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+}
+
+apply plugin: 'groovy'
+
+jar {
+    baseName = 'helper'
+    version =  '0.1'
+    manifest {
+        attributes 'Main-Class': 'yjh.cmdShell.OraShell2'
+//        attributes 'Class-Path': 'ext.libA.jar ext.libB.jar'
+    }
+}
+
+dependencies {
+    compile 'org.codehaus.groovy:groovy-all:2.4.13'
+    compile(
+            'org.apache.httpcomponents:httpclient:4.3.6',
+            'org.docx4j:docx4j:3.3.6',
+            'org.apache.poi:poi:3.17',
+            'org.apache.poi:poi-ooxml:3.17',
+            'org.apache.poi:poi-ooxml-schemas:3.17',
+            'org.apache.poi:poi-scratchpad:3.17',
+            'org.jsoup:jsoup:1.11.2'
+    )
+    compile fileTree(dir: 'lib', include: ['/*.jar'])
+}
