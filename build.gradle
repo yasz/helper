@@ -8,15 +8,6 @@ repositories {
 
 apply plugin: 'groovy'
 
-jar {
-    baseName = 'helper'
-    version =  '0.1'
-    manifest {
-        attributes 'Main-Class': 'yjh.cmdShell.OraShell2'
-//        attributes 'Class-Path': 'ext.libA.jar ext.libB.jar'
-    }
-}
-
 dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.4.13'
     compile(
@@ -28,5 +19,8 @@ dependencies {
             'org.apache.poi:poi-scratchpad:3.17',
             'org.jsoup:jsoup:1.11.2'
     )
+
+    compile group: 'org.apache.poi', name: 'ooxml-schemas', version: '1.4'
+
     compile fileTree(dir: 'lib', include: ['/*.jar'])
 }

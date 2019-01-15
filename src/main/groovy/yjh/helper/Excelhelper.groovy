@@ -1,6 +1,7 @@
 package yjh.helper
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
+import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.DateUtil
 import org.apache.poi.xssf.usermodel.XSSFWorkbook
 import org.apache.poi.ss.usermodel.Cell
@@ -20,26 +21,31 @@ class Excelhelper {
             Cell cell = delegate.getCell(idx as short)
             def cel_Type
             try {
-                cel_Type = cell.getCellType()
+                cel_Type = cell.getCellTypeEnum()
             } catch (Exception e) {
                 cel_Type = 3
             }
             if (cell == null) return
             def value
+
+
             switch (cel_Type) {
-                case Cell.CELL_TYPE_NUMERIC:
+                case CellType.NUMERIC:
                     if (DateUtil.isCellDateFormatted(cell)) value = cell.dateCellValue
                     else value = cell.numericCellValue
                     break
-                case Cell.CELL_TYPE_BOOLEAN:
+                case CellType.BOOLEAN:
                     value = cell.booleanCellValue
                     break
-                case Cell.CELL_TYPE_ERROR:
+                case CellType.ERROR:
                     value = ""
                     break
-                case Cell.CELL_TYPE_FORMULA:
+                case CellType.FORMULA:
+                    value = cell.numericCellValue
+                    break
 
                 default:
+
                     value = cell.stringCellValue
                     break
             }
@@ -184,6 +190,9 @@ class Excelhelper {
         return result
     }
 
+    List read(){
+        read( 0, sheet.getLastRowNum())
+    }
     List read(int sn, int en) {
         List result = []
         readRow(sn, en).each{row->
@@ -513,14 +522,14 @@ class Excelhelper {
         bdiExcel.export("D:\\${colSheetName}.xlsx")
     }
 
-    private static Excelhelper colsExcel = new Excelhelper("D:\\toshiba\\4.~TD~\\p.cmcczj\\zmccsvn\\9.TD迁移\\3.前端\\迁移columns.xls")
-    public static Excelhelper getColsExcelInstance() {
-        return colsExcel;
-    }
-//
-    public static Excelhelper reloadInstance() {
-        colsExcel = new Excelhelper("D:\\0.doc\\p.cmcczj\\zmccsvn\\9.TD迁移\\3.前端\\迁移columns.xls")
-    }
+//    private static Excelhelper colsExcel = new Excelhelper("D:\\toshiba\\4.~TD~\\p.cmcczj\\zmccsvn\\9.TD迁移\\3.前端\\迁移columns.xls")
+//    public static Excelhelper getColsExcelInstance() {
+//        return colsExcel;
+//    }
+////
+//    public static Excelhelper reloadInstance() {
+//        colsExcel = new Excelhelper("D:\\0.doc\\p.cmcczj\\zmccsvn\\9.TD迁移\\3.前端\\迁移columns.xls")
+//    }
     static def readDbtab(def dbtab){
         def (db,tab) = dbtab.split("\\.")
         Excelhelper colsExcel = getColsExcelInstance()
