@@ -1,8 +1,8 @@
 package tool
 
 
-import org.docx4j.Docx4J;
-
+import org.docx4j.Docx4J
+import org.docx4j.model.datastorage.migration.VariablePrepare;
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
@@ -21,6 +21,7 @@ class DocxHelper {
     DocxHelper(def path) {
         wordMLPackage = WordprocessingMLPackage.load(new java.io.File(path))
         documentPart = wordMLPackage.getMainDocumentPart()
+        VariablePrepare.prepare(wordMLPackage);
     }
 
     def saveAs(def outputPath) {
@@ -37,30 +38,20 @@ class DocxHelper {
 
         HashMap<String, String> mappings = new HashMap<String, String>();
 
-        mappings.put("cnname", "马参军");
-        mappings.put("name", "马参军");
+        for(i in 1..8){
+            mappings["item2${i}"] = "测试${i}"
+        }
 
-        mappings.put("years", "5");
+        mappings += [cnname  : "中国人"
+                ,name2  : "中国人"
+                    , enname: "english"
 
-        mappings.put("post", "攻城狮");
 
-        mappings.put("money", "25,000.00");
+        ]
 
-        mappings.put("moneyChinese", "二万五年里");
-
-        mappings.put("address", "天宫一号天宫一号天宫一号天宫一号");
-
-        mappings.put("telephone", "188188188188");
-
-        mappings.put("year", "2018");
-
-        mappings.put("month", "09");
-
-        mappings.put("date", "11");
-
-        new DocxHelper("${System.getProperty("user.dir")}/data/收入证明_template.docx")
+        new DocxHelper("${System.getProperty("user.dir")}/data/tmp2.docx")
                 .replace(mappings)
-                .saveAs("${System.getProperty("user.dir")}/data/out/收入证明.docx")
+                .saveAs("${System.getProperty("user.dir")}/data/out/0115.docx")
     }
 
 
