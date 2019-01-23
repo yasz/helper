@@ -39,17 +39,12 @@ class DocxHelper {
         HashMap<String, String> mappings = new HashMap<String, String>();
 
         for(i in 1..8){
-            mappings["item2${i}"] = "测试${i}"
+            mappings["item${i}"] = "测试${i}"
         }
+        mappings["cnname"] = "楼主"
+        mappings["enname"] = "louzhu"
 
-        mappings += [cnname  : "中国人"
-                ,name2  : "中国人"
-                    , enname: "english"
-
-
-        ]
-
-        new DocxHelper("${System.getProperty("user.dir")}/data/tmp2.docx")
+        new DocxHelper("${System.getProperty("user.dir")}/data/tmp.docx")
                 .replace(mappings)
                 .saveAs("${System.getProperty("user.dir")}/data/out/0115.docx")
     }
