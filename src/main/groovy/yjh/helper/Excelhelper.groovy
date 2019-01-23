@@ -1,6 +1,7 @@
 package yjh.helper
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook
+import org.apache.poi.ss.formula.eval.FunctionEval
 import org.apache.poi.ss.usermodel.CellType
 import org.apache.poi.ss.usermodel.DateUtil
 import org.apache.poi.ss.usermodel.FormulaEvaluator
@@ -41,6 +42,7 @@ class Excelhelper {
                     value = ""
                     break
                 case CellType.FORMULA:
+                    cell.setCellFormula(cell.getCellFormula().replaceAll("_xlfn.",""))
                     value = cell.getSheet().getWorkbook().getCreationHelper().createFormulaEvaluator().evaluate(cell)
                             .getNumberValue()
                     break
@@ -56,8 +58,11 @@ class Excelhelper {
 
         Row.metaClass.toList = {
             def l = []
-            for (i in 0..delegate.getLastCellNum() - 1) {
-                l.add(i, delegate.getAt(i))
+
+            if(delegate.getLastCellNum() >= 0){
+                for (i in 0..delegate.getLastCellNum() - 1) {
+                    l.add(i, delegate.getAt(i))
+                }
             }
             l
         }
@@ -198,6 +203,7 @@ class Excelhelper {
 
     List read(int sn, int en) {
         List result = []
+
         readRow(sn, en).each { row ->
             result.add(row.toList())
         }

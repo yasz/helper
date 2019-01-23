@@ -11,7 +11,7 @@ class OfficeAutoService {
 
     static void main(String[] args) {
         OfficeAutoService.initMetas()
-        """3V
+        """8v
 """.split(/\s+/).each {
             println("******parse ${it}.xlsx...")
             def s1 = new OfficeAutoService("${dataPath}/${it}.xlsx")
@@ -51,6 +51,7 @@ class OfficeAutoService {
         def commonParas = [:]
 
         def eh = new Excelhelper(reportExcelPath)
+
         eh.setSheet(0)// 0:科目考察表 1: 明细打分表
         def tab = eh.read() //获取非学科考察科目
 
@@ -126,9 +127,11 @@ class OfficeAutoService {
                         item = nonSubjectItemCount
                     }else{
                         item = metaMain(item)
+                        nonSubjectItemHash[item] = nonSubjectItemCount
                     }
                     nonSubjectItemCount++
-                    nonSubjectItemHash[item] = nonSubjectItemCount
+
+
                 }
             }
         }
@@ -159,8 +162,7 @@ class OfficeAutoService {
                             if (nonSubjectItemIndex != null  ) {
                                 int nonStartNum = nonSubjectItemIndex * this.NONSUBJECT_ITEM_NUM + this.META_COL_NUM
                                 List detailItem = detailTab2[num]
-                                def nonEndNum = (nonStartNum + NONSUBJECT_ITEM_NUM - 1 > detailItem.size() - 1) ?
-                                        detailItem.size() - 1 : nonStartNum + NONSUBJECT_ITEM_NUM - 1 // end项可能表格不齐
+                                def nonEndNum = (nonStartNum + NONSUBJECT_ITEM_NUM - 1 > detailItem.size() - 1) ? detailItem.size() - 1 : nonStartNum + NONSUBJECT_ITEM_NUM - 1 // end项可能表格不齐
                                 List detailItemScore = detailTab2[num][nonStartNum..nonEndNum]
                                 detailItemScore.removeAll([null, ""])
                                 println(this.reportExcelPath + paras.cnname + tab[2][startNum + j - 1] +detailItemScore)
