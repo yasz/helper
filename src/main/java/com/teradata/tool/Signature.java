@@ -23,14 +23,6 @@ public class Signature {
     private Date mydate_;
 
     public Signature() {
-        myname_ = "杨如冰";
-        mystudent_id_ = "0121618990732";
-        myclass_ = "物管1601";
-        try {
-            mydate_ = new SimpleDateFormat("yyyyMMdd").parse("19950322");
-        } catch (ParseException e) {
-            e.printStackTrace();
-        }
     }
 
     public String getMyname_() {

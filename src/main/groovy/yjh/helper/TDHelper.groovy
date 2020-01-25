@@ -1,6 +1,6 @@
 package yjh.helper
 
-import yjh.commonconst.DBConst
+import common.DBConst
 
 /**
  * Created by Administrator on 3/6/2017.

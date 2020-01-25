@@ -18,7 +18,21 @@ class Excelhelper {
     Workbook workbook
     Sheet sheet
 
+    Excelhelper(InputStream fis){
+        init()
+        workbook = new XSSFWorkbook(fis)
+    }
     Excelhelper(String fileName) {
+        init()
+        if (fileName.endsWith(EXTENSION_XLS)) {
+            new File(fileName).withInputStream { is -> workbook = new HSSFWorkbook(is) }
+        } else if (fileName.endsWith(EXTENSION_XLSX)) {
+            new File(fileName).withInputStream { is -> workbook = new XSSFWorkbook(is)
+            }
+        }
+        setSheet(0)
+    }
+    def init(){
         Row.metaClass.getAt = { int idx ->
             Cell cell = delegate.getCell(idx as short)
             def cel_Type
@@ -117,13 +131,7 @@ class Excelhelper {
             }
             return rl
         }
-        if (fileName.endsWith(EXTENSION_XLS)) {
-            new File(fileName).withInputStream { is -> workbook = new HSSFWorkbook(is) }
-        } else if (fileName.endsWith(EXTENSION_XLSX)) {
-            new File(fileName).withInputStream { is -> workbook = new XSSFWorkbook(is)
-            }
-        }
-        setSheet(0)
+
     }
 //    读取SHEET的数据到List数组中
     List<Row> readRow(int sn, int en) {
@@ -201,6 +209,9 @@ class Excelhelper {
         read(0, sheet.getLastRowNum())
     }
 
+    List read(def sn) {
+        read(sn, sheet.getLastRowNum())
+    }
     List read(int sn, int en) {
         List result = []
 
@@ -210,6 +221,13 @@ class Excelhelper {
         return result
     }
 
+    List read(int startrow, int endrow,int startCol,int colNum) {
+        List result = []
+        readRow(startrow, endrow).each { row ->
+            result.add(row.toList()[startCol..colNum])
+        }
+        return result
+    }
     Sheet setSheet(idx) {
         sheet = getSheet(idx)
     }

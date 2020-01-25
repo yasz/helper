@@ -1,6 +1,6 @@
 package yjh.helper
 
-import yjh.commonconst.DBConst
+import common.DBConst
 import yjh.model.ColumnInfo
 
 /**
