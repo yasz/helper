@@ -12,15 +12,30 @@ dependencies {
     compile 'org.codehaus.groovy:groovy-all:2.4.13'
     compile(
             'org.apache.httpcomponents:httpclient:4.3.6',
-            'org.docx4j:docx4j:3.3.6',
+            'org.docx4j:docx4j:6.1.2',
             'org.apache.poi:poi:3.17',
             'org.apache.poi:poi-ooxml:3.17',
             'org.apache.poi:poi-ooxml-schemas:3.17',
             'org.apache.poi:poi-scratchpad:3.17',
-            'org.jsoup:jsoup:1.11.2'
+            'org.jsoup:jsoup:1.11.2',
+
     )
 
     compile group: 'org.apache.poi', name: 'ooxml-schemas', version: '1.4'
+// https://mvnrepository.com/artifact/org.apache.commons/commons-compress
+    compile group: 'org.apache.commons', name: 'commons-compress', version: '1.18'
+// https://mvnrepository.com/artifact/org.postgresql/postgresql
+    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
 
     compile fileTree(dir: 'lib', include: ['/*.jar'])
+}
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'Gradle Jar File Example',
+                'Implementation-Version': version,
+                'Main-Class': 'com.mkyong.DateUtils'
+    }
+    baseName = project.name + '-all'
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
 }
