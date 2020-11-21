@@ -14,8 +14,8 @@ class Report0Service {
 
     static void main(String[] args) {
 
-        """4V
-""".split(/\s+/).each {
+        """8V
+7V""".split(/\s+/).each {
             println("******parse ${it}.xlsx...")
             def s1 = new Report0Service("${dataPath}/${it}.xlsx")
             s1.va2(new FileOutputStream("1.zip"))
@@ -30,9 +30,9 @@ class Report0Service {
         eh = new Excelhelper(reportExcelPath)
     }
 
-    Report0Service(InputStream fis) {
-        eh = new Excelhelper(fis)
-    }
+//    Report0Service(InputStream fis) {
+//        eh = new Excelhelper(fis)
+//    }
 
 
     static def dataPath = Const.dataPath
@@ -228,6 +228,8 @@ class Report0Service {
 
             }
             paras = commonParas + paras
+//            println(paras)
+
             def outputName = "${paras.classname}_${paras.studentno}_${paras.cnname}__${paras.enname}.docx"
             def outputPath = "${dataPath}/out/${outputName}"
 

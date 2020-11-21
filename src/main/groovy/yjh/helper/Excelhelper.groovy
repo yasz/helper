@@ -228,8 +228,9 @@ class Excelhelper {
         }
         return result
     }
-    Sheet setSheet(idx) {
+    def setSheet(idx) {
         sheet = getSheet(idx)
+        return this
     }
 
     void export(def path) {
@@ -386,7 +387,7 @@ class Excelhelper {
         Excelhelper srcExcel = new Excelhelper("D:\\0.doc\\src.xlsx")
         Excelhelper tmpExcel = new Excelhelper("D:\\0.doc\\SXX_XX统数据字典v1.0.xls")
         for (i in 1..srcExcel.workbook.getNumberOfSheets() - 1) {
-            def sheet = srcExcel.setSheet(i)
+            srcExcel.setSheet(i)
             def name = srcExcel.getSheet(i).getSheetName()
             List cols = srcExcel.readRow().toLL()
             println("start process:$name")
@@ -442,7 +443,7 @@ class Excelhelper {
         Excelhelper srcExcel = new Excelhelper("D:\\0.doc\\p.bowz\\2017入仓\\FSD入仓\\账务核心数据出仓FSD接口-V1.6.xlsx")
         Excelhelper tmpExcel = new Excelhelper("D:\\0.doc\\p.bowz\\2017入仓\\FSD入仓\\SXX_XX统数据字典v1.0.xls")
         for (i in 1..srcExcel.workbook.getNumberOfSheets() - 1) { // 遍历SHEET
-            def sheet = srcExcel.setSheet(i)
+            srcExcel.setSheet(i)
             List cols = srcExcel.readRow().toLL()
             def name = cols[0][0]
             def cnName = srcExcel.getSheet(i).getSheetName()

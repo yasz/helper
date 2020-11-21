@@ -11,7 +11,7 @@ import yjh.helper.Excelhelper
 class ParseSubjectDim2 {
 
     static def sem = Const.sem
-    static def wordListPath = "D:\\3.ws\\2.code\\ruianva.github.io\\5.assistant\\vano\\subjectDim.txt"
+    static def wordListPath = "D:\\3.ws\\2.code\\ruianva.github.io\\5.assistant\\vano\\subjectDim2.txt"
 
     static def subjects = []
     static def h = [:]

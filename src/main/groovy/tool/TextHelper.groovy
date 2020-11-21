@@ -14,7 +14,7 @@ class TextHelper {
         file.delete();
         file.createNewFile();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(
-                new FileOutputStream(file), "CP936"));
+                new FileOutputStream(file), "utf-8"));
         writer.write(str);
         writer.close();
 

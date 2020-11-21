@@ -16,7 +16,7 @@ class DBHelper {
 //    String password
     DBHelper(ip,user,password){
         Class.forName('org.postgresql.Driver').newInstance() as Driver
-        conn = DriverManager.getConnection("jdbc:postgresql://${ip}:1002/postgres","${user}","${password}")
+        conn = DriverManager.getConnection("jdbc:postgresql://${ip}:5432/postgres","${user}","${password}")
         sql = new Sql(conn)
     }
 
