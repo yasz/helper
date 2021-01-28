@@ -8,7 +8,10 @@ import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
 
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
 import org.docx4j.wml.ContentAccessor
+import org.docx4j.wml.Tbl
+import org.docx4j.wml.Tc
 import org.docx4j.wml.Text
+import org.docx4j.wml.Tr
 
 import javax.xml.bind.JAXBElement;
 
@@ -55,30 +58,75 @@ class DocxHelper {
         }
     }
 
-    static void main(String[] args) throws Exception {
-
-        def dir = "D:\\3.ws\\2.code\\ruianva.github.io\\5.assistant\\report\\初中毕业生综合素质评价报告"
-        new File(dir).eachFileRecurse(FileType.FILES) { file ->
-            if (file.toString() ==~ /.*docx$/) {
-                new DocxHelper(file.toString()).read()
-                println("分割线")
+    def deleteCol(String keyword){
+        String textNodesXPath = "//w:t";
+        List<Object> textNodes = documentPart.getJAXBNodesViaXPath(textNodesXPath, false);
+        for (Object o1 : textNodes) {
+            org.docx4j.wml.Text o2= o1.value
+            println(o2.getValue())
+            if(((org.docx4j.wml.Text) o2).getValue().contains(keyword)) {
+                // if your text contains "WhatYouWant" then...
+                Object o4 =((org.docx4j.wml.Text)o2).getParent();
+                //gets R
+                Object o5 = ((org.docx4j.wml.R) o4).getParent();
+                // gets P
+                Tc o6 = ((org.docx4j.wml.P) o5).getParent();
+                Tr o7 = ((org.docx4j.wml.Tc) o6).getParent();
+                Tbl o8 = ((org.docx4j.wml.Tr) o7).getParent();
+                // gets SdtElement
+                //判断自己是第几个位置
+                int elementIndex = o7.content.findIndexOf{JAXBElement it->o6==it.value}
+                o8.content.each {
+                    println(it.content.size() )
+                    println(o7.content.size())
+                    if(it.content.size() >= o7.content.size()){
+                        it.content.remove(elementIndex)
+                    }
+                }
+//                o7.content.remove(o6)
 
             }
         }
+        return this
+    }
 
-//        new DocxHelper("${dir}/陈可悦.docx").read()
-
-        HashMap<String, String> mappings = new HashMap<String, String>();
-
-        for (i in 1..8) {
-            mappings["item${i}"] = "测试${i}"
+    def deleteRow(String keyword){
+        String textNodesXPath = "//w:t";
+        List<Object> textNodes = documentPart.getJAXBNodesViaXPath(textNodesXPath, false);
+        for (Object o1 : textNodes) {
+            org.docx4j.wml.Text o2= o1.value
+            println(o2.getValue())
+            if(((org.docx4j.wml.Text) o2).getValue().contains(keyword)) {
+                println("got!!!"+ keyword)
+                // if your text contains "WhatYouWant" then...
+                Object o4 =((org.docx4j.wml.Text)o2).getParent();
+                //gets R
+                Object o5 = ((org.docx4j.wml.R) o4).getParent();
+                // gets P
+                Object o6 = ((org.docx4j.wml.P) o5).getParent();
+                Object o7 = ((org.docx4j.wml.Tc) o6).getParent();
+                Object o8 = ((org.docx4j.wml.Tr) o7).getParent();
+                // gets SdtElement
+                o8.content.remove(o7)
+                // now you remove your P (paragraph)
+            }
         }
-        mappings["cnname"] = "楼主"
-        mappings["enname"] = "louzhu"
+        return this
+    }
+    static void main(String[] args) throws Exception {
 
-//        new DocxHelper("${System.getProperty("user.dir")}/data/卢佳俊-降1级.docx")
-//                .replace(mappings)
-//                .saveAs("${System.getProperty("user.dir")}/data/out/0115.docx")
+        def dir = "D:\\3.ws\\1.idea\\helper\\dat\\tmp\\tmpg9-3.docx"
+        def doc = new DocxHelper(dir)
+        doc.deleteCol("日常").deleteCol("考试").deleteCol("年度总评")
+
+//        doc.deleteCol("日常")
+
+        doc.saveAs("a.docx")
+
+
+//        HashMap<String, String> mappings = new HashMap<String, String>("s05");
+
+
 
 
     }

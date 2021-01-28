@@ -36,7 +36,7 @@ class vaPortalService {
         paras.motherwork = hm.母亲工作单位及职位
         paras.hearWay = hm.了解惟校渠道
         def outputStream = new FileOutputStream("${appno} ${hm.学生姓名}.docx")
-        new DocxHelper("${Const.tmplatePath}/vaAdminTmp2.docx").replace(paras).saveAsOutputStream(outputStream)
+        new DocxHelper("${Const.tmpDir}/vaAdminTmp2.docx").replace(paras).saveAsOutputStream(outputStream)
     }
 
     static void exportAdmin() {
@@ -70,7 +70,7 @@ class vaPortalService {
 
             def outputStream = new FileOutputStream("${appno} ${hm.学生姓名}.docx")
 
-            new DocxHelper("${Const.tmplatePath}/vaAdminTmp2.docx").replace(paras).saveAsOutputStream(outputStream)
+            new DocxHelper("${Const.tmpDir}/vaAdminTmp2.docx").replace(paras).saveAsOutputStream(outputStream)
         }
 
 

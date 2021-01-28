@@ -61,14 +61,8 @@ class TextHelper {
     }
 
     static void main(String[] args) {
-        def level = 0
-        level = (level!=null) ? level : ""
-        println(level)
-//        String fileContents = new File('C:\\Users\\peterjiahao\\Desktop\\data.txt').getText()
-//        TextHelper.unit1(fileContents)
-//        fileContents.split("分割线").each {
-//            TextHelper.unit1(it)
-//        }
+        print(CalHelper.vascore2(79.5))
+        print(CalHelper.vascore2(80))
 
 
     }
