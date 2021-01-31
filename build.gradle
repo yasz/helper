@@ -21,10 +21,17 @@ dependencies {
 
     )
     compile group: 'org.docx4j', name: 'docx4j-JAXB-Internal', version: '8.2.8'
+    // https://mvnrepository.com/artifact/com.aspose/aspose-words
+
+
+//    compile group: 'org.docx4j', name: 'docx4j-JAXB-ReferenceImpl', version: '8.2.8'
+//    compile group: 'org.docx4j', name: 'docx4j-JAXB-MOXy', version: '8.2.8'
+//    compile group: 'org.docx4j', name: 'docx4j-export-fo', version: '8.2.8'
     compile group: 'org.apache.poi', name: 'ooxml-schemas', version: '1.4'
     compile group: 'org.apache.commons', name: 'commons-compress', version: '1.18'
     compile group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
     compile group: 'com.alibaba', name: 'fastjson', version: '1.2.75'
+
     compile fileTree(dir: 'lib', include: ['/*.jar'])
 }
 task fatJar(type: Jar) {
