@@ -2,27 +2,35 @@ package tool
 
 import groovy.sql.Sql
 
+import java.sql.Connection
 import java.sql.Driver
 import java.sql.DriverManager
 
 /**
  * Created by Peter.Yang on 2019/6/24.
  */
+@Singleton
 class DBHelper {
-    def conn
-    def sql
-//    String ip
-//    String user
-//    String password
-    DBHelper(ip,user,password){
-        Class.forName('org.postgresql.Driver').newInstance() as Driver
+    Sql sql
+    def driver = Class.forName('org.postgresql.Driver').newInstance() as Driver
+    Connection conn = DriverManager.getConnection("jdbc:postgresql://ruianva.cn:5432/postgres","postgres","ruianVA123")
+    private reconnect(ip,user,password){
         conn = DriverManager.getConnection("jdbc:postgresql://${ip}:5432/postgres","${user}","${password}")
         sql = new Sql(conn)
     }
-
-
+    static def query(sqlStr,Connection conn){
+        def sql = new Sql(conn)
+        def rs = []
+        try {
+            sql.eachRow(sqlStr) { line->
+                rs<<line.toRowResult()
+            }
+        } finally {
+        }
+        return rs
+    }
     def query(sqlStr){
-
+//        if(conn==null||conn.isClosed()){reconnect("ruianva.cn","postgres","ruianVA123")}
         def rs = []
         try {
             sql.eachRow(sqlStr) { line->
@@ -34,9 +42,6 @@ class DBHelper {
         return rs
     }
     def close(){
-
-    }
-    public static void main(String[] args) {
-//        println(new DBHelper(args[0],args[1],args[2]).query("select 123 from where id = '${dis}'")[0][0])
+        this.conn.close()
     }
 }

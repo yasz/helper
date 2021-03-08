@@ -2,6 +2,18 @@ package yjh.helper
 
 class StringHelper {
 
+    static printL(String[] l){
+
+    }
+    static String printLL(def ll,String sep){
+        def o=""
+        ll.eachWithIndex {l,i->
+            if(i==4){o+="\n"}
+            o+=(l.collect{'"'+it.replaceAll("\n","\n")+'"'}.join(sep))+"\n"
+        }
+        println(o)
+        return o
+    }
     String colclear(String src){
         def desc = src
         desc.replaceAll(" ","")
@@ -89,11 +101,6 @@ class StringHelper {
     }
 
     static main(args) {
-        def a = "decimal(10,2)"
-        a = a.replaceAll(/\(.*?\)/,"")
-        println(a)
-//        def b = (a =~ /\((.*?)\)/)
-//        b.find()
-//        println(b.group(1))
+        printLL([["c1","c2"],["v1","v2"]],"\t")
     }
 }

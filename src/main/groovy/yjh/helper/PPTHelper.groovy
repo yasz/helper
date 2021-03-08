@@ -80,6 +80,7 @@ class PPTHelper {
         Slide descSlide = ppt.createSlide(ppt.getSlideMasters()[num].getLayout(SlideLayout.TITLE_AND_CONTENT))
 
     }
+
     void writeTmplate(String title, String lyric, String order, int slideNum) {
         /**
          * created by yang on 22:28 2017/12/28.
@@ -115,14 +116,14 @@ class PPTHelper {
 
 
     static void main(String[] args) {
-        String fileName = "C:\\tmp1.pptx"
-        def ppt = new PPTHelper(fileName)
+        println("~~~~~~~~~~~~~~是否乱码")
+        def ppt = new PPTHelper("C:\\Users\\peterjiahao\\Desktop\\0214.ppt")
 //
-        ppt.writeTmplate("啊1", "歌词内容1", "1", 0)
-        ppt.writeTmplate("啊2", "歌词内容2", "2", 1)
+//        ppt.writeTmplate("啊1", "歌词内容1", "1", 0)
+//        ppt.writeTmplate("啊2", "歌词内容2", "2", 1)
 //        ppt.writeTmplate("啊3", "歌词内容3", "3", 2)
-//        ppt.readSlideText()
-        ppt.export("c:\\2.pptx")
+        ppt.readSlideText()
+//        ppt.export("c:\\2.pptx")
 
     }
 

@@ -22,6 +22,7 @@ class Excelhelper {
         init()
         workbook = new XSSFWorkbook(fis)
     }
+
     Excelhelper(String fileName) {
         init()
         if (fileName.endsWith(EXTENSION_XLS)) {
@@ -31,6 +32,9 @@ class Excelhelper {
             }
         }
         setSheet(0)
+    }
+    def Writer(){
+
     }
     def init(){
         Row.metaClass.getAt = { int idx ->
@@ -216,7 +220,9 @@ class Excelhelper {
         List result = []
 
         readRow(sn, en).each { row ->
+            if (row!=null){
             result.add(row.toList())
+            }
         }
         return result
     }

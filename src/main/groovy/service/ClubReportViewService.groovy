@@ -21,7 +21,7 @@ class ClubReportViewService {
                 paras["d${i}"]= row[i]
             }
             paras.cnname= row[0]
-            def doc = new DocxHelper("D:\\3.ws\\1.idea\\helper\\dat\\tmp\\tmpClub.docx")
+            def doc = new DocxHelper(Const.tmpClub)
             doc.replace(paras).saveAs("${paras.cnname}.docx")
         }
 

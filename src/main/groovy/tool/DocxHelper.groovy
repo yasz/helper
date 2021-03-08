@@ -1,5 +1,8 @@
 package tool
 
+import com.aspose.words.Document
+import com.aspose.words.SaveFormat
+import com.aspose.words.SaveOptions
 import com.plutext.merge.BlockRange
 import com.plutext.merge.DocumentBuilder
 import common.Const
@@ -35,15 +38,35 @@ class DocxHelper {
         wordMLPackage = WordprocessingMLPackage.load(new java.io.File(path))
         documentPart = wordMLPackage.getMainDocumentPart()
         VariablePrepare.prepare(wordMLPackage);
-
     }
 
+    static void toPDF(String inPath, String outPath) throws Exception {
+        new Document(inPath).save(outPath);
+    }
 
+    static String newlineToBreakHack(String r) {
+
+        StringTokenizer st = new StringTokenizer(r, "\n\r\f");
+        // tokenize on the newline character, the carriage-return character, and the form-feed character
+        StringBuilder sb = new StringBuilder()
+
+        boolean firsttoken = true;
+        while (st.hasMoreTokens()) {
+            String line = (String) st.nextToken();
+            if (firsttoken) {
+                firsttoken = false;
+            } else {
+                sb.append("</w:t><w:br/><w:t>")
+            }
+            sb.append(line);
+        }
+        return sb.toString();
+    }
     static merge(List<String> files, String outPath) {
 
         List<BlockRange> blockRanges = new ArrayList<BlockRange>();
         files.eachWithIndex { File file, i ->
-            println("merge"+file.getName())
+
             BlockRange block = new BlockRange(WordprocessingMLPackage.load(
                     file));
             blockRanges.add(block);
@@ -57,28 +80,39 @@ class DocxHelper {
         }
 
         // Perform the actual merge
-
-
         DocumentBuilder documentBuilder = new DocumentBuilder();
-
         WordprocessingMLPackage wordMLPackage = documentBuilder.buildOpenDocument(blockRanges);
         Docx4J.save(wordMLPackage, new File(outPath));
-
     }
 
-    def saveAs(def outputPath) {
+    def saveAs(String outputPath) {
         Docx4J.save(wordMLPackage, new File(outputPath), Docx4J.FLAG_NONE)
         return this
     }
+
+    def saveAsPDF(String outputPath){
+        OutputStream os = new ByteArrayOutputStream()
+        Docx4J.save(wordMLPackage, os)
+        new Document(new ByteArrayInputStream(os.toByteArray())).save(outputPath)
+        return
+    }
+    def saveAsPDFOutputStream(OutputStream pdfOs){
+        OutputStream docOs = new ByteArrayOutputStream()
+        Docx4J.save(wordMLPackage, docOs)
+        new Document(new ByteArrayInputStream(docOs.toByteArray())).save(pdfOs, SaveFormat.PDF)
+        return
+    }
+    def saveAsOutputStream(OutputStream os) {
+        Docx4J.save(wordMLPackage, os)
+        return os
+    }
+
 
     int getPages() {
 
     }
 
-    def saveAsOutputStream(OutputStream op) {
-        Docx4J.save(wordMLPackage, op)
-        return op
-    }
+
 
     def replace(def mappings) {
         documentPart.variableReplace(mappings)
@@ -92,7 +126,7 @@ class DocxHelper {
         for (Object obj : textNodes) {
             Text text = (Text) ((JAXBElement) obj).getValue();
             String textValue = text.getValue();
-//            System.out.println(textValue);
+
         }
     }
 
@@ -101,7 +135,6 @@ class DocxHelper {
         List<Object> textNodes = documentPart.getJAXBNodesViaXPath(textNodesXPath, false);
         for (Object o1 : textNodes) {
             org.docx4j.wml.Text o2 = o1.value
-//            println(o2.getValue())
             if (((org.docx4j.wml.Text) o2).getValue().contains(keyword)) {
                 // if your text contains "WhatYouWant" then...
                 Object o4 = ((org.docx4j.wml.Text) o2).getParent();
@@ -115,8 +148,7 @@ class DocxHelper {
                 //判断自己是第几个位置
                 int elementIndex = o7.content.findIndexOf { JAXBElement it -> o6 == it.value }
                 o8.content.each {
-//                    println(it.content.size() )
-//                    println(o7.content.size())
+
                     if (it.content.size() >= o7.content.size()) {
                         it.content.remove(elementIndex)
                     }
@@ -133,9 +165,9 @@ class DocxHelper {
         List<Object> textNodes = documentPart.getJAXBNodesViaXPath(textNodesXPath, false);
         for (Object o1 : textNodes) {
             org.docx4j.wml.Text o2 = o1.value
-//            println(o2.getValue())
+
             if (((org.docx4j.wml.Text) o2).getValue().contains(keyword)) {
-                println("got!!!" + keyword)
+
                 // if your text contains "WhatYouWant" then...
                 Object o4 = ((org.docx4j.wml.Text) o2).getParent();
                 //gets R
