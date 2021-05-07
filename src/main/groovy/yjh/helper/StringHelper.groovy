@@ -1,5 +1,5 @@
 package yjh.helper
-
+import groovy.sql.Sql
 class StringHelper {
 
     static printL(String[] l){
@@ -21,8 +21,19 @@ class StringHelper {
     }
     static List<List> s2ll(String s){
         def rs = []
+        s=s.replaceAll("\r","")
         s.split("\n").toList().each {
             rs.add(it.split("\t"))
+        }
+        return rs
+    }
+    static Object[][] s2Oo(String s){
+        s=s.replaceAll("\r","")
+        def rs = [] as Object[]
+        s.split("\n").toList().each {
+            def os = it.split("\t") as Object[]
+            if(os.size()==1){os=[os[0],null]as Object[]}
+            rs +=[os]
         }
         return rs
     }

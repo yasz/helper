@@ -1,5 +1,8 @@
 package service
 
+import common.Const
+import tool.DBHelper
+import tool.DBHelper2
 import tool.DocxHelper
 import tool.TextHelper
 import yjh.helper.Excelhelper
@@ -12,53 +15,30 @@ class ReportMidterm {
 
     static void main(String[] args) {
 
-        def tmpPath = "C:\\Users\\peterjiahao\\Desktop\\姓名9v.docx"
-        def paras = [:]
-        def op = ""
-        def tab = new Excelhelper("C:\\Users\\peterjiahao\\Desktop\\tmplate.xlsx").setSheet(1).read()
-        def tab2 = new Excelhelper("C:\\Users\\peterjiahao\\Desktop\\tmplate.xlsx").setSheet(2).read()
 
-        def subjects = tab[2]
-        tab.eachWithIndex { def line, int i ->
-            paras = [:]
-            def outputName = line[1] + "_" + line[2]
-            if (i >= 280 && i < 302) {
-                paras["cnname"] = line[2]
-                int count = 0
-                line.eachWithIndex { def unit, int j ->
-                    if (j < 7) return
-                    def countS = 0
-                    if (unit.getClass().toString().contains("String")) {
-                        if(unit.toString().length()<1){return}
 
-                        unit = Double.parseDouble(unit.toString().replaceAll("[\\xC2\\xA0]",""))
-                    }
-                    if (unit.getClass().toString().contains("Double")) {
-                        countS = String.format("%02d", ++count)
-                        if (unit > 7) {
-                            unit = tool.CalHelper.vascore2(unit)
-                        } else {
-                            unit = tool.CalHelper.vascore(unit)
-                        }
-                        paras["sub${countS}"] = subjects[j]
-                        paras["t${countS}"] = unit
-                    }
-                    unit = tab2[i][j]
-                    if (unit.getClass().toString().contains("Double")) {
-//                        def countS = String.format("%02d", ++count)
-                        if (unit > 7) {
-                            unit = tool.CalHelper.vascore2(unit)
-                        } else {
-                            unit = tool.CalHelper.vascore(unit)
-                        }
+        def sql = """
+select classname,cnname,classno,json_object_agg ( subject , json ) as json from
+(select cnname,classname,classno,subject,json_object_agg ( key1, value1 ) AS json 
+from 
+(SELECT t2.cnname,t3.classname,t3.classno,t1.subject,t1.key1,t1.value1 FROM report  t1
+left join va1 t2
+on t1.vano=t2.vano
+left join va3 t3
+on t1.sem=t3.sem
+and t1.vano=t3.vano
+WHERE t1.KEY1 in ('attitude','midtermexam') --attitude
+AND t1.SEM = '212' and value1 <> ''
+)t1
+group by 1,2,3,4
+)t2
+where classname='7v'
+group by 1,2,3
 
-                        paras["s${countS}"] = unit
-                    }
-                }
-                println(paras)
-                new DocxHelper(tmpPath).replace(paras).saveAs(outputName.toString() + ".docx")
-            }
-        }
+"""
+        new DBHelper2("ruianva.cn",'postgres','ruianVA123').query(sql).eachWithIndex( (it,i)->{
+            println(it)
+            println(i)
+        })
     }
-
 }

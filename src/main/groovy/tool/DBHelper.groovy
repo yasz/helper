@@ -12,12 +12,9 @@ import java.sql.DriverManager
 @Singleton
 class DBHelper {
     Sql sql
-    def driver = Class.forName('org.postgresql.Driver').newInstance() as Driver
+
     Connection conn = DriverManager.getConnection("jdbc:postgresql://ruianva.cn:5432/postgres","postgres","ruianVA123")
-    private reconnect(ip,user,password){
-        conn = DriverManager.getConnection("jdbc:postgresql://${ip}:5432/postgres","${user}","${password}")
-        sql = new Sql(conn)
-    }
+
     static def query(sqlStr,Connection conn){
         def sql = new Sql(conn)
         def rs = []
@@ -29,18 +26,22 @@ class DBHelper {
         }
         return rs
     }
-    def query(sqlStr){
+//    private reconnect(ip,user,password){
+//        conn = DriverManager.getConnection("jdbc:postgresql://${ip}:5432/postgres","${user}","${password}")
+//        sql = new Sql(conn)
+//    }
+//    def query(sqlStr){
 //        if(conn==null||conn.isClosed()){reconnect("ruianva.cn","postgres","ruianVA123")}
-        def rs = []
-        try {
-            sql.eachRow(sqlStr) { line->
-                rs<<line.toRowResult()
-            }
-        } finally {
-
-        }
-        return rs
-    }
+//        def rs = []
+//        try {
+//            sql.eachRow(sqlStr) { line->
+//                rs<<line.toRowResult()
+//            }
+//        } finally {
+//
+//        }
+//        return rs
+//    }
     def close(){
         this.conn.close()
     }

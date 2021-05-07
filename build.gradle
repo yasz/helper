@@ -1,46 +1,40 @@
-group 'yjh.helper'
-version '1.0-SNAPSHOT'
-
+group 'praise.site'
+version '1.2'
 repositories {
-    mavenLocal()
-    maven{ url 'http://maven.aliyun.com/nexus/content/groups/public/'}
+    mavenCentral()
+    maven {
+        url 'https://dl.bintray.com/americanexpress/maven/'
+    }
 }
 
 apply plugin: 'groovy'
-
+apply plugin: 'java-library'
 dependencies {
-    compile 'org.codehaus.groovy:groovy-all:2.4.13'
-    compile(
+
+    api(
+            'org.codehaus.groovy:groovy-all:3.0.7',
             'org.apache.httpcomponents:httpclient:4.3.6',
-//            'org.docx4j:docx4j:6.1.2',
             'org.apache.poi:poi:3.17',
             'org.apache.poi:poi-ooxml:3.17',
             'org.apache.poi:poi-ooxml-schemas:3.17',
             'org.apache.poi:poi-scratchpad:3.17',
             'org.jsoup:jsoup:1.11.2',
+            'org.apache.poi:ooxml-schemas:1.4',
+            'org.apache.commons:commons-compress:1.18',
+            'org.postgresql:postgresql:42.2.5',
+            'com.alibaba:fastjson:1.2.75',
+            'com.zaxxer:HikariCP:4.0.1',
+            'javax.xml.bind:jaxb-api:2.3.1',
+//            'com.sun.xml.bind:jaxb-impl:3.0.1',
+//            'com.sun.xml.bind:jaxb-core:3.0.1',
+            'org.glassfish.jaxb:jaxb-runtime:3.0.1',
+            'org.postgresql:postgresql:42.2.20'
+
 
     )
-    compile group: 'org.docx4j', name: 'docx4j-JAXB-Internal', version: '8.2.8'
-    // https://mvnrepository.com/artifact/com.aspose/aspose-words
+    api group: 'org.docx4j', name: 'docx4j-JAXB-Internal', version: '8.2.8'
+    api group: 'org.docx4j', name: 'docx4j-JAXB-ReferenceImpl', version: '8.2.8'
 
-
-//    compile group: 'org.docx4j', name: 'docx4j-JAXB-ReferenceImpl', version: '8.2.8'
-//    compile group: 'org.docx4j', name: 'docx4j-JAXB-MOXy', version: '8.2.8'
-//    compile group: 'org.docx4j', name: 'docx4j-export-fo', version: '8.2.8'
-    compile group: 'org.apache.poi', name: 'ooxml-schemas', version: '1.4'
-    compile group: 'org.apache.commons', name: 'commons-compress', version: '1.18'
-    compile group: 'org.postgresql', name: 'postgresql', version: '42.2.5'
-    compile group: 'com.alibaba', name: 'fastjson', version: '1.2.75'
-
-    compile fileTree(dir: 'lib', include: ['/*.jar'])
+    api(fileTree(dir: 'lib', include: ['/*.jar']))
 }
-task fatJar(type: Jar) {
-    manifest {
-        attributes 'Implementation-Title': 'Gradle Jar File Example',
-                'Implementation-Version': version,
-                'Main-Class': 'com.mkyong.DateUtils'
-    }
-    baseName = project.name + '-all'
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
-}
+compileJava.options.encoding = 'UTF-8'

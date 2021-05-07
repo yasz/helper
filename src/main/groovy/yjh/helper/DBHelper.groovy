@@ -8,7 +8,7 @@ import yjh.model.ColumnInfo
  */
 
 
-class DBHelper {
+class DBHelper3 {
     static def getOracleLDR(List<ColumnInfo> units,String db){
 
         def cols = []

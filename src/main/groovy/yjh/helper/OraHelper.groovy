@@ -8,7 +8,7 @@ package yjh.helper
  */
 
 class OraHelper {
-    DBConn conn
+    DBConn3 conn
     static def ctlSql= """
     SELECT COLUMN_NAME,CASE
 WHEN DATA_TYPE LIKE '%CHAR%' THEN 'CHAR('||DATA_LENGTH||')'
@@ -25,7 +25,7 @@ ORDER BY COLUMN_ID
 """
 
     private OraHelper(String dbid) {
-        conn = DBConn.getInstance(dbid)
+        conn = DBConn3.getInstance(dbid)
     }
     private static OraHelper uniqueObj
     synchronized  static OraHelper getInstance(String dbid){

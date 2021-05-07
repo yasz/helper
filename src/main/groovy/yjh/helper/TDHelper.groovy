@@ -7,7 +7,7 @@ import common.DBConst
  */
 
 class TDHelper {
-    DBConn conn
+    DBConn3 conn
     def tdsql= """
 SELECT    TRIM(A1.databaseNAME),TRIM(A1.TABLENAME),
 A3.commentstring TABLE_TITLE, --表comment
@@ -65,7 +65,7 @@ ORDER      BY a1.TABLENAME,a1.columnid;
 """
 
     private TDHelper(String dbid) {
-        conn = DBConn.getInstance(dbid)
+        conn = DBConn3.getInstance(dbid)
     }
 
     static void main(String[] args) {

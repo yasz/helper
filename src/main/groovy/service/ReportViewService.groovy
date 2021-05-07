@@ -72,7 +72,6 @@ FROM
 \tAND t1.sem = t2.sem
 \tLEFT JOIN subjects_ib t3 ON t3.vano = t2.vano 
 \tAND t3.sem = t2.sem 
-\t
 \tleft join va1 t4 on t1.vano=t4.vano
 WHERE
 \tT1.SEM = '${Const.sem}'  

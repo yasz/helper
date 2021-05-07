@@ -7,7 +7,7 @@ import javassist.CtMethod;
  */
 public class Assis {
     public static void main(String[] args) throws Exception {
-        ClassPool.getDefault().insertClassPath("D:\\3.ws\\1.idea\\helper\\lib\\aspose-words-21.1-jdk16.jar");
+        ClassPool.getDefault().insertClassPath("D:\\3.ws\\1.idea\\helper\\lib\\aspose-slides-21.2-jdk16.jar");
         CtClass zzZJJClass = ClassPool.getDefault().getCtClass("com.aspose.words.zzZE0");
         CtMethod zzv = zzZJJClass.getDeclaredMethod("zzZ4h");
         zzv.setBody("{return 1;}");

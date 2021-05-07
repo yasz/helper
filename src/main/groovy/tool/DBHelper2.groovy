@@ -1,25 +1,29 @@
 package tool
 
-import com.zaxxer.hikari.HikariConfig
-import com.zaxxer.hikari.HikariDataSource
-import groovy.sql.GroovyResultSet
 import groovy.sql.Sql
 
-import java.sql.Connection
 import java.sql.Driver
 import java.sql.DriverManager
 
 /**
  * Created by Peter.Yang on 2019/6/24.
  */
-@Singleton
 class DBHelper2 {
+    def conn
+    def sql
+//    String ip
+//    String user
+//    String password
+    DBHelper2(ip,user,password){
+        Class.forName('org.postgresql.Driver').newInstance() as Driver
+        conn = DriverManager.getConnection("jdbc:postgresql://${ip}:5432/postgres","${user}","${password}")
+        sql = new Sql(conn)
+    }
 
-    def ds = new HikariDataSource(new HikariConfig("${System.getProperty("user.dir")}/db.properties"))
 
     def query(sqlStr){
+
         def rs = []
-        def sql = new Sql(ds.getConnection())
         try {
             sql.eachRow(sqlStr) { line->
                 rs<<line.toRowResult()
@@ -30,6 +34,9 @@ class DBHelper2 {
         return rs
     }
     def close(){
-        ds.close()
+
+    }
+    public static void main(String[] args) {
+//        println(new DBHelper(args[0],args[1],args[2]).query("select 123 from where id = '${dis}'")[0][0])
     }
 }

@@ -21,7 +21,7 @@ import org.docx4j.wml.Tc
 import org.docx4j.wml.Text
 import org.docx4j.wml.Tr
 
-import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBElement
 
 
 /**
