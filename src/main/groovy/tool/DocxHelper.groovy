@@ -23,7 +23,6 @@ import org.docx4j.wml.Tr
 
 import javax.xml.bind.JAXBElement
 
-
 /**
 
  * 收入证明模板示例
@@ -116,6 +115,7 @@ class DocxHelper {
 
     def replace(def mappings) {
         documentPart.variableReplace(mappings)
+
         return this
     }
 

@@ -24,17 +24,15 @@ dependencies {
             'org.postgresql:postgresql:42.2.5',
             'com.alibaba:fastjson:1.2.75',
             'com.zaxxer:HikariCP:4.0.1',
-            'javax.xml.bind:jaxb-api:2.3.1',
-//            'com.sun.xml.bind:jaxb-impl:3.0.1',
-//            'com.sun.xml.bind:jaxb-core:3.0.1',
-            'org.glassfish.jaxb:jaxb-runtime:3.0.1',
+
             'org.postgresql:postgresql:42.2.20'
 
-
     )
-    api group: 'org.docx4j', name: 'docx4j-JAXB-Internal', version: '8.2.8'
-    api group: 'org.docx4j', name: 'docx4j-JAXB-ReferenceImpl', version: '8.2.8'
 
+//    api group: 'org.docx4j', name: 'docx4j-JAXB-Internal', version: '8.2.8'
+//    api group: 'org.docx4j', name: 'docx4j-JAXB-ReferenceImpl', version: '8.2.8'
+    api group: 'org.docx4j', name: 'docx4j-core', version: '11.2.9'
+    api group: 'org.docx4j', name: 'docx4j-JAXB-ReferenceImpl', version: '11.2.9'
     api(fileTree(dir: 'lib', include: ['/*.jar']))
 }
 compileJava.options.encoding = 'UTF-8'

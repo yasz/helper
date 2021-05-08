@@ -66,6 +66,7 @@ class PPTXHelper {
         SlidePart newSlide = new SlidePart();//new PartName("/ppt/slides/slide1.xml")
         pp.addSlide(newSlide)
         SlidePart copySlide = pp.getSlide(num);
+        com.sun.xml.internal.
 
         newSlide.addTargetPart(copySlide.getSlideLayoutPart())//模板
         String content = copySlide.getXML()
