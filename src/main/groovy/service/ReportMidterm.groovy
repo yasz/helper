@@ -21,7 +21,7 @@ class ReportMidterm {
 """SELECT T2.vano,t1.classname,t2.cnname,t2.enname,t1.subject_json FROM subjects_subject t1
 left join va1 t2 on t1.vano=t2.vano
 where t1.sem='212'
-and t1.classname = '8v';
+and t1.classname = '7v';
 """
 //        """
 //SELECT t2.cnname,t2.enname,t3.classname,t3.classno,to_json(json_object_agg(t1.key1||t1.subject,t1.value1)) as json1 FROM report  t1
@@ -48,7 +48,7 @@ and t1.classname = '8v';
                 paras["sus"+it.key]=CalHelper.vascore2(it.value.sus)
                 paras["sum"+it.key]=CalHelper.vascore2(it.value.sum)
                 if(it.value.sum == null) paras["sum"+it.key] = ''
-
+                if(it.value.sus == null) paras["sus"+it.key] = ''
 
             }
 

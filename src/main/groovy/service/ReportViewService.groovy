@@ -55,15 +55,15 @@ class ReportViewService {
     static void main(String[] args) {
         def db = DBHelper.instance
         OutputStream pdfOs = new FileOutputStream("out\\1.docx")
-        getByVano(['100101'],pdfOs,db.conn)
+        getByVano(['200131'], '212', pdfOs, db.conn)
         return
     }
 
-    static void getByVano(def vanos, OutputStream pdfOs, Connection conn) {
+    static void getByVano(def vanos, String sem, OutputStream pdfOs, Connection conn) {
 
         def subjectno = JSON.parseObject(DBHelper.query("""select to_jsonb(json_object_agg( subject,"subjectNo")) from subjects
 where enable is true
-""",conn)[0][0].value)
+""", conn)[0][0].value)
         def sql = """SELECT
 \tt1.classname,t1.vano,t4.enname,t4.cnname, subject_json,comment_json,ib_json
 FROM
@@ -75,23 +75,26 @@ FROM
 
 \tleft join va1 t4 on t1.vano=t4.vano
 WHERE
-\tT1.SEM = '${Const.sem}'  
+\tT1.SEM = '${sem}'  
 and t1.vano in ('${vanos.join("','")}')
 ORDER BY
 \t1,
 \t2;
 \t
 """
-        DBHelper.query(sql,conn).each { it ->
-            def lastyear = "20${Integer.parseInt(Const.sem.substring(0, 2)) - 1}"
-            def longtsem = "${lastyear}-20${Const.sem.substring(0, 2)}-${Const.sem.substring(2)}"
+        println(sql)
+        def rs = DBHelper.query(sql, conn)
+        rs.each { it ->
+            def lastyear = "20${Integer.parseInt(sem.substring(0, 2)) - 1}"
+            def longtsem = "${lastyear}-20${sem.substring(0, 2)}-${sem.substring(2)}"
             def paras = [sem: longtsem]
             it.each { i ->
                 paras[i.key] = i.value
             }
             def subjects = JSON.parseObject(it.subject_json.value)
-            def comments = JSON.parseObject(it.comment_json.value)
-            def ibs = JSON.parseObject(it.ib_json.value)
+
+            def comments = JSON.parseObject(it.comment_json?it.comment_json.value:"")
+            def ibs = JSON.parseObject(it.ib_json?it.ib_json.value:"")
             //doc模板里的学科是动态生成的，需将【中文,5,6】按照编号顺序组成【n01:中文,s01:5,t01:6】
             //排除【英文】以及【班主任】
             subjects.sort { subjectno[it.key] }.eachWithIndex { subject, i ->
@@ -127,7 +130,7 @@ ORDER BY
             }
 
             def doc = new DocxHelper(Const.tmpPath)
-            if (Const.sem.endsWith("1")) {
+            if (sem.endsWith("1")) {
                 doc.deleteCol("总评")
             }
             if (paras.classname.startsWith("1v")) {
@@ -139,7 +142,9 @@ ORDER BY
             (subjects.size() + minusCount + 1).upto(18) {
                 doc.deleteRow("n${sprintf('%2d', it)}")
             }
+
             doc.replace(paras).saveAsPDFOutputStream(pdfOs)
+//            doc.replace(paras).saveAsOutputStream(pdfOs)
         }
     }
 }

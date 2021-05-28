@@ -1,6 +1,8 @@
 package service
 
+import com.alibaba.fastjson.JSON
 import common.Const
+import tool.DBHelper
 import tool.TextHelper
 import yjh.helper.Excelhelper
 
@@ -17,9 +19,25 @@ class ParseSubjectDim2 {
     static def h = [:]
     static def subjectDims = []
 
-    static def eh = new Excelhelper(Const.subjectDimPath)
+    static def eh = new Excelhelper('')
     static def op = "评价项\n" //标题行
+    static void parse2(){
+        def table = "reportv11"
+        def keyColumn = "t1.subject||type1"
+        def valueColumn = "score100"
 
+
+        def filter = "t1  left join subjects t2 on t1.subject = t2.subject where sem='211'"
+        def orderColumn = 'subjectNo'
+
+        DBHelper.query("""select DISTINCT "orderColumn",${keyColumn} as keyColumn   from ${table} ${filter} order by 1""",
+                DBHelper
+                .instance.conn)
+                .each {it->
+                """create view bi_${table.split(" ")[0]} as select ${valueColumn},from ${table}"""
+                }
+
+    }
     static void parse(gradeNum){
         //s1:对于非二维表格，第一个先进行标准化(按块合并为standardTabs)
         eh.read().eachWithIndex { def line, int i ->
@@ -72,12 +90,13 @@ class ParseSubjectDim2 {
     }
     static void main(String[] args) {
 
-        //开始解析初中小学部
-        eh.setSheet("评价比例(1-9)")
-        parse(9)
-        eh.setSheet("评价比例(10-12)")
-        parse(3)
-//        println(h)
-        TextHelper.printToFile(wordListPath, op)
+        parse2()
+//        //开始解析初中小学部
+//        eh.setSheet("评价比例(1-9)")
+//        parse(9)
+//        eh.setSheet("评价比例(10-12)")
+//        parse(3)
+////        println(h)
+//        TextHelper.printToFile(wordListPath, op)
     }
 }
