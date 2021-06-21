@@ -54,8 +54,8 @@ class ReportViewService {
 
     static void main(String[] args) {
         def db = DBHelper.instance
-        OutputStream pdfOs = new FileOutputStream("out\\1.docx")
-        getByVano(['200131'], '212', pdfOs, db.conn)
+        OutputStream pdfOs = new FileOutputStream("out\\190124.pdf")
+        getByVano(['190124'], '202', pdfOs, db.conn)
         return
     }
 
@@ -130,9 +130,10 @@ ORDER BY
             }
 
             def doc = new DocxHelper(Const.tmpPath)
-            if (sem.endsWith("1")) {
-                doc.deleteCol("总评")
-            }
+//            if (sem.endsWith("1")) {
+//                doc.deleteCol("总评")
+//            }
+            doc.deleteCol("总评")
             if (paras.classname.startsWith("1v")) {
                 doc.deleteCol("日常")
                 doc.deleteCol("考试")

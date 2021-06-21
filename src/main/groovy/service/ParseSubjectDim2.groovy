@@ -19,7 +19,7 @@ class ParseSubjectDim2 {
     static def h = [:]
     static def subjectDims = []
 
-    static def eh = new Excelhelper('')
+    static def eh = new Excelhelper('C:\\Users\\peterjiahao\\Desktop\\教担.xlsx')
     static def op = "评价项\n" //标题行
     static void parse2(){
         def table = "reportv11"
@@ -29,12 +29,19 @@ class ParseSubjectDim2 {
 
         def filter = "t1  left join subjects t2 on t1.subject = t2.subject where sem='211'"
         def orderColumn = 'subjectNo'
-
-        DBHelper.query("""select DISTINCT "orderColumn",${keyColumn} as keyColumn   from ${table} ${filter} order by 1""",
+        def sql = """select DISTINCT "${orderColumn}",${keyColumn} as keyColumn   from ${table} ${filter} order by 1""".toString()
+        println(sql)
+        DBHelper.query(sql,
                 DBHelper
                 .instance.conn)
-                .each {it->
-                """create view bi_${table.split(" ")[0]} as select ${valueColumn},from ${table}"""
+                .eachWithIndex {it,i ->
+                    println("""create view max(
+        CASE
+            WHEN ((t1.subject || t1.type1) = '科学sus'::text) THEN t1.score100
+            ELSE NULL::double precision
+        END) AS dim${String.format("%03d",i)}value,""")
+                    println("""comment on view bi_${table.split(" ")[0]}  as select ${valueColumn},from 
+${table}""")
                 }
 
     }
