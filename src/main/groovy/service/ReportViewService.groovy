@@ -55,12 +55,12 @@ class ReportViewService {
     static void main(String[] args) {
         def db = DBHelper.instance
         OutputStream pdfOs = new FileOutputStream("out\\190124.pdf")
-        getByVano(['190124'], '202', pdfOs, db.conn)
+        getByVano(['110132'], '212', pdfOs, db.conn)
         return
     }
 
     static void getByVano(def vanos, String sem, OutputStream pdfOs, Connection conn) {
-
+//先到处DOCX，最终汇总成PDF
         def subjectno = JSON.parseObject(DBHelper.query("""select to_jsonb(json_object_agg( subject,"subjectNo")) from subjects
 where enable is true
 """, conn)[0][0].value)
@@ -82,7 +82,6 @@ ORDER BY
 \t2;
 \t
 """
-        println(sql)
         def rs = DBHelper.query(sql, conn)
         rs.each { it ->
             def lastyear = "20${Integer.parseInt(sem.substring(0, 2)) - 1}"
@@ -98,7 +97,11 @@ ORDER BY
             //doc模板里的学科是动态生成的，需将【中文,5,6】按照编号顺序组成【n01:中文,s01:5,t01:6】
             //排除【英文】以及【班主任】
             subjects.sort { subjectno[it.key] }.eachWithIndex { subject, i ->
+                if(subject.key.contains("高中")){
+                    println(subject)
+                }
                 paras["n${sprintf('%02d', i + 1)}"] = subject.key.toUpperCase().replace("高中", "")
+
                 paras["s${sprintf('%02d', i + 1)}"] = tool.CalHelper.vascore2(subject.value.sus)
                 paras["t${sprintf('%02d', i + 1)}"] = tool.CalHelper.vascore3(subject.value.sum, subject.key, paras.classname)
                 if (subject.value.sus == null) {
@@ -143,9 +146,7 @@ ORDER BY
             (subjects.size() + minusCount + 1).upto(18) {
                 doc.deleteRow("n${sprintf('%2d', it)}")
             }
-
             doc.replace(paras).saveAsPDFOutputStream(pdfOs)
-//            doc.replace(paras).saveAsOutputStream(pdfOs)
         }
     }
 }

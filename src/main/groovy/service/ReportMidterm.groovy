@@ -40,9 +40,10 @@ and t1.classname = '7v';
 
             paras.cnname=row.cnname
             paras.enname=row.enname
+
 //            paras.midterm中文=3
 //
-//            paras.classname=row.classname
+//            paras.classname=row.classname1
             JSON.parseObject(row.subject_json.value).each{
 //                println(it)
                 paras["sus"+it.key]=CalHelper.vascore2(it.value.sus)

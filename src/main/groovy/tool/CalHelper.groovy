@@ -6,12 +6,13 @@ package tool
 class CalHelper {
     static int vascore3(def score100,def flag,def flag2) {
 
-        def lv= [90,80,70,60,40,20,1]
+        def lv=                 [90,80,70,60,40,20,1]
         if(flag == '中文' && flag2=='10v'){
-            lv=  [71,66,60,50,40,30,20]
+            lv=   [71,66,62,54,50,46]
         }else if(flag == '中文' && flag2=='11v'){
-            lv=  [72,67,63,57,51,40,1]
-
+            lv=
+            [71,66,63,57,52,40]
+//            [72,67,63,57,51,40,1]
         }
 
         if (score100>=lv[0]){return 7}

@@ -64,10 +64,10 @@ class DocxHelper {
     static merge(List<String> files, String outPath) {
 
         List<BlockRange> blockRanges = new ArrayList<BlockRange>();
-        files.eachWithIndex { File file, i ->
+        files.eachWithIndex { String filePath, i ->
 
-            BlockRange block = new BlockRange(WordprocessingMLPackage.load(
-                    file));
+            BlockRange block = new BlockRange(WordprocessingMLPackage.load(new File(filePath)
+                    ));
             blockRanges.add(block);
             block.setStyleHandler(BlockRange.StyleHandler.RENAME_RETAIN);
             block.setNumberingHandler(BlockRange.NumberingHandler.ADD_NEW_LIST);
@@ -185,7 +185,7 @@ class DocxHelper {
     }
 
     static void main(String[] args) throws Exception {
-
+        merge(["190102.docx","190101.docx"],"merge.docx")
 
     }
 
