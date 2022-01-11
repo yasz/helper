@@ -11,23 +11,9 @@ import java.sql.Connection
 
 /**
  * Created by Peter.Yang on 2021/1/22.
+ * 作为标准导出服务
  */
 class ReportViewService {
-    //导出报告单
-//    9v
-//    8v
-//    7v
-//    6v
-//    5v
-//    4v
-//    4e
-//    3v
-//    3e
-//    2v
-//    2e
-//    1v
-//    11v
-//    10v
 
     static def classname = """9v
 8v
@@ -54,7 +40,7 @@ class ReportViewService {
 
     static void main(String[] args) {
         def db = DBHelper.instance
-        OutputStream pdfOs = new FileOutputStream("out\\190124.pdf")
+        OutputStream pdfOs = new FileOutputStream("110132.pdf")
         getByVano(['110132'], '212', pdfOs, db.conn)
         return
     }
@@ -91,7 +77,6 @@ ORDER BY
                 paras[i.key] = i.value
             }
             def subjects = JSON.parseObject(it.subject_json.value)
-
             def comments = JSON.parseObject(it.comment_json?it.comment_json.value:"")
             def ibs = JSON.parseObject(it.ib_json?it.ib_json.value:"")
             //doc模板里的学科是动态生成的，需将【中文,5,6】按照编号顺序组成【n01:中文,s01:5,t01:6】
@@ -112,10 +97,14 @@ ORDER BY
                 }
                 paras["comment${sprintf('%02d', i + 1)}"] = comments[subject.key]
             }
+            //start of 无评分的科目(如：体育)特殊处理，对评语设置，将分数栏设置为"-"。 minusSubjects
+
+
             def minusSubjects = comments.findAll { c ->
                 !subjects.find { s -> c.key == s.key }
             }
             def minusCount = 0
+            //按编号排序
             minusSubjects.sort { subjectno[it.key] }.eachWithIndex { e, j ->
                 if (j == 0) {
                     return
@@ -126,6 +115,8 @@ ORDER BY
                 paras["t${sprintf('%02d', subjects.size() + j)}"] = "-"
                 minusCount++
             }
+
+            //无评分科目特殊处理
 
             paras.comment00 = comments['班主任']
             ibs.each { ib ->
