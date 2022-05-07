@@ -13,15 +13,15 @@ import yjh.helper.Excelhelper
 class ParseSubjectDim2 {
 
     static def sem = Const.sem
-    static def wordListPath = "D:\\3.ws\\2.code\\ruianva.github.io\\5.assistant\\vano\\subjectDim2.txt"
+    static def wordListPath = "subjectDim2.txt"
 
     static def subjects = []
     static def h = [:]
     static def subjectDims = []
 
-    static def eh = new Excelhelper('D:\\backup\\FileStorage\\File\\2020-03\\评价项.xlsx')
+    static def eh = new Excelhelper('C:\\Users\\yangj\\Downloads\\评价项.xlsx')
     static def op = "评价项\n" //标题行
-    static void parse2(){
+    static void parse2() {
         def table = "reportv11"
         def keyColumn = "t1.subject||type1"
         def valueColumn = "score100"
@@ -38,16 +38,16 @@ class ParseSubjectDim2 {
         def comment = ""
         DBHelper.query(sql,
                 DBHelper
-                .instance.conn)
-                .eachWithIndex {it,i ->
-                    outputSql+=(""",max(
+                        .instance.conn)
+                .eachWithIndex { it, i ->
+                    outputSql += (""",max(
         CASE
             WHEN ((t1.subject || t1.type1) = '${it.keycolumn}'::text) THEN t1.score100
             ELSE NULL::double precision
-        END) AS dim${String.format("%03d",i)}value""")
-                    comment+=("""\ncomment on COLUMN bi_${table.split(" ")[0]}.dim${String.format("%03d",i)}value is '${String.format("%03d",i)}${it.keyColumn}';""")
+        END) AS dim${String.format("%03d", i)}value""")
+                    comment += ("""\ncomment on COLUMN bi_${table.split(" ")[0]}.dim${String.format("%03d", i)}value is '${String.format("%03d", i)}${it.keyColumn}';""")
                 }
-        println(outputSql+"""
+        println(outputSql + """
 FROM (reportv11 t1
      LEFT JOIN va1 t2 ON ((t1.vano = t2.vano)))
   WHERE ((t1.sem = '211'::text) OR (t1.sem = '212'::text))
@@ -61,66 +61,109 @@ comment on COLUMN bi_reportv11.grade is '0.班级名';
 """)
 
     }
-    static void parse(gradeNum){
-        //s1:对于非二维表格，第一个先进行标准化(按块合并为standardTabs)
-        eh.read().eachWithIndex { def line, int i ->
 
-        }
-        subjects = []
-        h = [:]
-        subjectDims = []
-        //s2:构造结构化的hash对象
+    static void parse221(gradeNum) {
+        //s1:对于非标准二维表格，預檢查先以统一大小合并各个科目方块，主要每行大小為33行、25行
         def tab = eh.read()
-        tab.eachWithIndex { def line, int i ->
-            if (i % (gradeNum+2) == 0) {  //要求每个单元格都有[9+2]行,这儿是首行
+        def h = [:]
+        if (tab.size() % (gradeNum + 2) != 0) {
+            throw new Exception("【错误】：表格行数${tab.size()}不是${gradeNum + 2}的倍数，请检查")
+        }
+        tab.eachWithIndex { List entry, int i ->
+            if ((entry.size() - 1) % 8 != 0) {
+                throw new Exception("【错误】：表格第${i + 1}行的列数${entry.size()}-1不是8(评价项)的倍数")
+            }
+        }
+        println("检测完毕，开始处理大卸八塊 进行装填")
+        for (int i = 0; i < tab.size(); i += (gradeNum + 2)) {
+            List subjectRow = tab[i]
+            for (j in 0..(subjectRow.size() / 8) - 1) {
+                def subject = tab[i][j*8 + 1]
+                def list = eh.read(i+1,i+gradeNum+1,j*8+1,j*8+8)
+                println(subject)
+                println(list)
+                h[subject]=list
+            }
+        }
+        println("s1:拆卸完毕开始标准化输出")
+        h.eachWithIndex{ def entry, int i ->
+            def subject = entry.key
+            def list = entry.value
+            def dimrow = list[0]
+            list.eachWithIndex{ def e, int j ->
+                if(j==0){return}
+                if(gradeNum==3){j=j+9}
+                op +=("${Const.sem}\t${subject}\t${j}\tsus\tquiz\t${e[0]}\n")
+                op +=("${Const.sem}\t${subject}\t${j}\tsus\thomework\t${e[1]}\n")
+                op +=("${Const.sem}\t${subject}\t${j}\tsus\tattitude\t${e[2]}\n")
+                op +=("${Const.sem}\t${subject}\t${j}\tsus\tother1\t${e[3]}\n")
+                op +=("${Const.sem}\t${subject}\t${j}\tsus\tother2\t${e[4]}\n")
+                op +=("${Const.sem}\t${subject}\t${j}\tsum\tmidtermexam\t${e[5]}\n")
+                op +=("${Const.sem}\t${subject}\t${j}\tsum\tfinalexam\t${e[6]}\n")
+                op +=("${Const.sem}\t${subject}\t${j}\tsum\tother3\t${e[7]}\n")
+            }
+        }
+        println(op)
+
+    }
+    static void parse(gradeNum) {
+
+        subjects = []
+        h = [:] //最終
+        subjectDims = []
+        def tab = eh.read()
+        eh.read().eachWithIndex { def line, int i ->
+            println("line${i}:" + line)
+            if (i == 34) {
+                print('halt')
+            }
+            if (i % (gradeNum + 2) == 0) {  //要求每个单元格都有[9+2]行,这儿是首行
                 line.findAll { it.toString().length() > 0 && it.toString() != '科目' }.each {
                     h[it.toString()] = [:]
                     subjects += it
                 }
-            }
-            else if (i % (gradeNum+2) == 1) { // 指标项行
-                line.findAll { it.toString().length() > 0 && it.toString() != '年级' }.eachWithIndex { it, j ->
+            } else if (i % (gradeNum + 2) == 1) { // 指标项行
+                def ll = line.findAll { it.toString().length() > 0 && it.toString() != '年级' }
+                ll.eachWithIndex { it, j ->
                     subjectDims += it //科目下的指标  or 科目下的年级
                 }
             } else { //具体的评价项行
-                line.findAll {  it.toString().length() > 0 && !it.toString().startsWith("g") }.eachWithIndex{ it, j ->
-                    def subjectNo = i.intdiv((gradeNum+2))*4 + j.intdiv(8) //取余对位科目
-                    def rate = Float.parseFloat(it.toString())?Float.parseFloat(it.toString()):0
-                    def hs = [(subjectDims[subjectNo*8 + j%8]):rate] // 指标 : 指标比例
-                    println(subjects[subjectNo]+line[0] +h[subjects[subjectNo]]."${line[0]}")
-                    if(subjects[subjectNo]=='生物'){
-                        println("debugger")
-                    }
-                    if(h[subjects[subjectNo]]."${line[0]}" ==null){
+                line.findAll { it.toString().length() > 0 && !it.toString().startsWith("g") }.eachWithIndex { it, j ->
+                    def subjectNo = i.intdiv((gradeNum + 2)) * 4 + j.intdiv(8) //取余对位科目
+                    def rate = Float.parseFloat(it.toString()) ? Float.parseFloat(it.toString()) : 0
+                    def hs = [(subjectDims[subjectNo * 8 + j % 8]): rate] // 指标 : 指标比例
+                    if (h[subjects[subjectNo]]."${line[0]}" == null) {
                         h[subjects[subjectNo]]."${line[0]}" = [:]
                     }
                     h[subjects[subjectNo]]."${line[0]}" += hs
                 }
             }
+            print("parse over")
         }
-        h.each { subject->
+        h.each { subject ->
 
-            subject.value.each { grade->
-                op+=(sem+"\t"+grade.key+"\t"+subject.key)
-                grade.value.each {item->
-                    op+=("\t"+item.key)
+            subject.value.each { grade ->
+                op += (sem + "\t" + grade.key + "\t" + subject.key)
+                grade.value.each { item ->
+                    op += ("\t" + item.key)
                 }
-                grade.value.each {item->
-                    op+=("\t"+item.value)
+                grade.value.each { item ->
+                    op += ("\t" + item.value)
                 }
-                op+="\n"
+                op += "\n"
             }
         }
         println(op)
     }
+
     static void main(String[] args) {
 
 //        parse(9)
 ////        //开始解析初中小学部
-        eh.setSheet("评价比例(1-9)")
-        parse(9)
-//        eh.setSheet("评价比例(10-12)")
-//        parse(3)
+//        eh.setSheet("评价比例(1-9)")
+//        parse221(9)
+        eh.setSheet("评价比例(10-12)")
+        parse221(3)
 ////        println(h)
         TextHelper.printToFile(wordListPath, op)
     }

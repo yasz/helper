@@ -1,34 +1,32 @@
 package tool
 
-import org.apache.commons.compress.archivers.ArchiveEntry
-import org.apache.commons.compress.archivers.zip.Zip64Mode
-import org.apache.commons.compress.archivers.zip.ZipArchiveEntry
+import common.Const
+import net.lingala.zip4j.ZipFile
+import net.lingala.zip4j.model.ZipParameters
+import net.lingala.zip4j.model.enums.AesKeyStrength
+import net.lingala.zip4j.model.enums.EncryptionMethod
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream
-import org.apache.poi.ss.usermodel.Workbook
+import static groovy.io.FileType.FILES
 
 /**
  * Created by Peter.Yang on 2019/5/10.
  */
 class ZipTool {
-    static void zipDir(OutputStream opo,List<InputStream> ips) {
-        /**
-         * created by yang on 19:53 2019/5/23.
-         * describtion: 将指定目录压缩为一个压缩包
-         * @param :
 
-         */
+     static void main(String[] args) {
+         ZipParameters zipParameters = new ZipParameters();
+         zipParameters.setEncryptFiles(true);
+         zipParameters.setEncryptionMethod(EncryptionMethod.AES);
+// Below line is optional. AES 256 is used by default. You can override it to use AES 128. AES 192 is supported only for extracting.
+         zipParameters.setAesKeyStrength(AesKeyStrength.KEY_STRENGTH_256);
+         def fs = []
+         new File('C:\\2.dev\\1.java\\ps_bg\\out').traverse(type: groovy.io.FileType.FILES, nameFilter: ~/.*pdf$/) {
+             fs += it
+             println(it.name)
+         }
 
-        ZipArchiveOutputStream zous = new ZipArchiveOutputStream(new FileOutputStream("1.zip"));        //web端时直接用response流
-        zous.setUseZip64(Zip64Mode.AsNeeded);
-        //遍历文件list
-        ips.each {
-            zous.addRawArchiveEntry(new ZipArchiveEntry(),it)
-        }
-        zous.close()
-    }
-
-    public static void main(String[] args) {
-        zipDir()
+         ZipFile zipFile = new ZipFile("${Const.sem}.zip", "ruianVA123".toCharArray());
+         zipFile.addFiles(fs, zipParameters)
     }
 
 }

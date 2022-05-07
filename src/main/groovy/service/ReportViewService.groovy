@@ -40,8 +40,10 @@ class ReportViewService {
 
     static void main(String[] args) {
         def db = DBHelper.instance
-        OutputStream pdfOs = new FileOutputStream("110132.pdf")
-        getByVano(['110132'], '212', pdfOs, db.conn)
+        def vano ='180203'
+        def sem = '192'
+        OutputStream pdfOs = new FileOutputStream("${sem}-${vano}.pdf")
+        getByVano([vano], sem, pdfOs, db.conn)
         return
     }
 
@@ -50,15 +52,15 @@ class ReportViewService {
         def subjectno = JSON.parseObject(DBHelper.query("""select to_jsonb(json_object_agg( subject,"subjectNo")) from subjects
 where enable is true
 """, conn)[0][0].value)
+        //将学生的科目评语、成绩、IB成绩
         def sql = """SELECT
 \tt1.classname,t1.vano,t4.enname,t4.cnname, subject_json,comment_json,ib_json
 FROM
-\tsubjects_subject t1
-\tLEFT JOIN subjects_comment t2 ON t1.vano = t2.vano 
+\tcourses.sem_evaluations t1
+\tLEFT JOIN courses.sem_comments t2 ON t1.vano = t2.vano 
 \tAND t1.sem = t2.sem
-\tLEFT JOIN subjects_ib t3 ON t3.vano = t2.vano 
+\tLEFT JOIN courses.sem_ibs t3 ON t3.vano = t2.vano 
 \tAND t3.sem = t2.sem 
-
 \tleft join va1 t4 on t1.vano=t4.vano
 WHERE
 \tT1.SEM = '${sem}'  
@@ -68,6 +70,7 @@ ORDER BY
 \t2;
 \t
 """
+        println(sql)
         def rs = DBHelper.query(sql, conn)
         rs.each { it ->
             def lastyear = "20${Integer.parseInt(sem.substring(0, 2)) - 1}"
@@ -88,7 +91,9 @@ ORDER BY
                 paras["n${sprintf('%02d', i + 1)}"] = subject.key.toUpperCase().replace("高中", "")
 
                 paras["s${sprintf('%02d', i + 1)}"] = tool.CalHelper.vascore2(subject.value.sus)
-                paras["t${sprintf('%02d', i + 1)}"] = tool.CalHelper.vascore3(subject.value.sum, subject.key, paras.classname)
+
+                paras["t${sprintf('%02d', i + 1)}"] = tool.CalHelper.vascore2(subject.value.sum)
+//                paras["t${sprintf('%02d', i + 1)}"] = tool.CalHelper.vascore3(subject.value.sum, subject.key, paras.classname)
                 if (subject.value.sus == null) {
                     paras["s${sprintf('%02d', i + 1)}"] = '-'
                 }
@@ -123,7 +128,7 @@ ORDER BY
                 paras[ib.key] = ib.value
             }
 
-            def doc = new DocxHelper(Const.tmpPath)
+            def doc = new DocxHelper(Const.tmp2Path)
 //            if (sem.endsWith("1")) {
 //                doc.deleteCol("总评")
 //            }
