@@ -1,0 +1,14 @@
+server:
+  port: 8090
+logging:
+  file: "./log/et.log"
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+spring:
+    resources:
+      static-locations: file:./src/main/resources/static/
+    devtools:
+        restart: #热部署生效
+          enabled: true
+#          additional-paths: src/main/scala,src/main/java
+          exclude: WEB-INF/** #classpath目录下的WEB-INF文件夹内容修改不重启

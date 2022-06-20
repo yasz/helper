@@ -111,21 +111,6 @@ class Excelhelper2 {
 """,new FileOutputStream("声现象单元测.pdf"))
 
 
-//        def rs = DBHelper.query("""select subject,string_agg(cnname||chr(9)||VALUE1 , chr(10)) from (
-//select t1.subject,t3.cnname,CASE WHEN t1.value1='0' then '' else t1.value1 end  from (select * from report where sem='211' and key1='finalexam')t1
-//left join va3 t2 on t1.vano=t2.vano
-//and t1.sem=t2.sem
-//left join va1 t3 on t1.vano=t3.vano
-//where t2.classname='9v'
-//order by 1,classno
-//)t4
-//WHERE SUBJECT <>'班主任'
-//group by 1;
-//""", DBHelper.instance.conn)
-//        rs.each { it ->
-//            def testName = "2020-2021-1学期${it[0]}期末成绩统计"
-//            Excelhelper2.s1(testName, it[1])
-//        }
 
     }
 }

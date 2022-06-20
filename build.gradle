@@ -20,11 +20,11 @@ dependencies {
             'org.apache.poi:poi-scratchpad:3.17',
             'org.jsoup:jsoup:1.11.2',
             'org.apache.poi:ooxml-schemas:1.4',
-            'org.apache.commons:commons-compress:1.18',
+            'org.yaml:snakeyaml:1.30',
             'org.postgresql:postgresql:42.2.5',
             'com.alibaba:fastjson:1.2.75',
             'com.zaxxer:HikariCP:4.0.1',
-
+            'net.lingala.zip4j:zip4j:2.9.1',
             'org.postgresql:postgresql:42.2.20'
 
     )

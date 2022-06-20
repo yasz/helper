@@ -7,6 +7,7 @@ import tool.DBHelper
 import tool.DBHelper2
 import tool.DocxHelper
 
+import java.lang.reflect.Field
 import java.sql.Connection
 
 /**
@@ -40,9 +41,9 @@ class ReportViewService {
 
     static void main(String[] args) {
         def db = DBHelper.instance
-        def vano ='180203'
-        def sem = '192'
-        OutputStream pdfOs = new FileOutputStream("${sem}-${vano}.pdf")
+        def vano = '140105'
+        def sem = '212'
+        OutputStream pdfOs = new FileOutputStream("${sem}-${vano}.docx")
         getByVano([vano], sem, pdfOs, db.conn)
         return
     }
@@ -80,12 +81,12 @@ ORDER BY
                 paras[i.key] = i.value
             }
             def subjects = JSON.parseObject(it.subject_json.value)
-            def comments = JSON.parseObject(it.comment_json?it.comment_json.value:"")
-            def ibs = JSON.parseObject(it.ib_json?it.ib_json.value:"")
+            def comments = JSON.parseObject(it.comment_json ? it.comment_json.value : "")
+            def ibs = JSON.parseObject(it.ib_json ? it.ib_json.value : "")
             //doc模板里的学科是动态生成的，需将【中文,5,6】按照编号顺序组成【n01:中文,s01:5,t01:6】
             //排除【英文】以及【班主任】
             subjects.sort { subjectno[it.key] }.eachWithIndex { subject, i ->
-                if(subject.key.contains("高中")){
+                if (subject.key.contains("高中")) {
                     println(subject)
                 }
                 paras["n${sprintf('%02d', i + 1)}"] = subject.key.toUpperCase().replace("高中", "")
@@ -142,7 +143,15 @@ ORDER BY
             (subjects.size() + minusCount + 1).upto(18) {
                 doc.deleteRow("n${sprintf('%2d', it)}")
             }
-            doc.replace(paras).saveAsPDFOutputStream(pdfOs)
+            Field pathField = FileOutputStream.class.getDeclaredField("path");
+            pathField.setAccessible(true);
+            String path = (String) pathField.get(pdfOs)
+            println(path)
+            if (path.endsWith("pdf")) {
+                doc.replace(paras).saveAsPDFOutputStream(pdfOs)
+            } else {
+                doc.replace(paras).saveAsOutputStream(pdfOs)
+            }
         }
     }
 }

@@ -22,7 +22,7 @@ import org.docx4j.wml.Text
 import org.docx4j.wml.Tr
 
 import javax.xml.bind.JAXBElement
-
+import static groovy.io.FileType.FILES
 /**
 
  * 收入证明模板示例
@@ -45,7 +45,7 @@ class DocxHelper {
 
     static String newlineToBreakHack(String r) {
 
-        StringTokenizer st = new StringTokenizer(r, "\n\r\f");
+        StringTokenizer st = new StringTokenizer(r, "\t\n\r\f");
         // tokenize on the newline character, the carriage-return character, and the form-feed character
         StringBuilder sb = new StringBuilder()
 
@@ -59,7 +59,16 @@ class DocxHelper {
             }
             sb.append(line);
         }
-        return sb.toString();
+        return sb.toString().replaceAll(" +"," ");
+    }
+    static merge(String path,String reg,String outPath){
+        def files = []
+        new File(path).eachFileRecurse() {
+            if(it.name ==~ reg) {
+                files += it.toString()
+            }
+        }
+        merge(files,outPath)
     }
     static merge(List<String> files, String outPath) {
 
@@ -115,7 +124,6 @@ class DocxHelper {
 
     def replace(def mappings) {
         documentPart.variableReplace(mappings)
-
         return this
     }
 
@@ -185,7 +193,8 @@ class DocxHelper {
     }
 
     static void main(String[] args) throws Exception {
-        merge(["190102.docx","190101.docx"],"merge.docx")
+
+        merge("C:\\2.dev\\1.java\\ps_bg\\",/^K8B.*docx/,"K8B.docx")
 
     }
 
