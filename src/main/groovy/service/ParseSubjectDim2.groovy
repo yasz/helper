@@ -61,6 +61,41 @@ comment on COLUMN bi_reportv11.grade is '0.班级名';
 """)
 
     }
+    static void parse22(gradeNum) {
+        def tab = eh.setSheet("年度评价比例(1-9)").read()
+        def h = [:]
+        for (int i = 0; i < tab.size(); i += (gradeNum + 2)) {
+            List subjectRow = tab[i]
+            for (j in 0..(subjectRow.size() / 4) - 1) {
+                def subject = tab[i][j*4 + 1]
+                def list = eh.read(i+1,i+gradeNum+1,j*4+1,j*4+4)
+                println(subject)
+                println(list)
+                h[subject]=list
+//                System.exit(1)
+            }
+        }
+        h.eachWithIndex { def entry, int i ->
+            def subject = entry.key
+            def list = entry.value
+
+            def mapping = "90\t80\t70\t60\t40\t20\t0"
+            list.eachWithIndex { def e, int j ->
+                if (j == 0) {
+                    return
+                }
+                op+=("${Integer.parseInt(Const.sem)-1}\t${subject}\t${j}\t\tsus\t${e[0]}\t${mapping}\t1\n")
+                op+=("${Integer.parseInt(Const.sem)-1}\t${subject}\t${j}\t\tsum\t${e[1]}\t${mapping}\t2\n")
+                op+=("${Const.sem}\t${subject}\t${j}\t\tsus\t${e[2]}\t${mapping}\t3\n")
+                op+=("${Const.sem}\t${subject}\t${j}\t\tsum\t${e[3]}\t${mapping}\t4\n")
+
+
+            }
+        }
+        println("***************")
+        println(op)
+        println("***************")
+    }
 
     static void parse221(gradeNum) {
         //s1:对于非标准二维表格，預檢查先以统一大小合并各个科目方块，主要每行大小為33行、25行
@@ -79,10 +114,12 @@ comment on COLUMN bi_reportv11.grade is '0.班级名';
             List subjectRow = tab[i]
             for (j in 0..(subjectRow.size() / 8) - 1) {
                 def subject = tab[i][j*8 + 1]
-                def list = eh.read(i+1,i+gradeNum+1,j*8+1,j*8+8)
+                def list = eh.read(i+1,i+gradeNum,j*8+1,j*8+8)
                 println(subject)
                 println(list)
                 h[subject]=list
+//                System.exit(1)
+
             }
         }
         println("s1:拆卸完毕开始标准化输出")
@@ -90,17 +127,18 @@ comment on COLUMN bi_reportv11.grade is '0.班级名';
             def subject = entry.key
             def list = entry.value
             def dimrow = list[0]
+            def mapping = "90\t80\t70\t60\t40\t20\t0"
             list.eachWithIndex{ def e, int j ->
                 if(j==0){return}
-                if(gradeNum==3){j=j+9}
-                op +=("${Const.sem}\t${subject}\t${j}\tsus\tquiz\t${e[0]}\n")
-                op +=("${Const.sem}\t${subject}\t${j}\tsus\thomework\t${e[1]}\n")
-                op +=("${Const.sem}\t${subject}\t${j}\tsus\tattitude\t${e[2]}\n")
-                op +=("${Const.sem}\t${subject}\t${j}\tsus\tother1\t${e[3]}\n")
-                op +=("${Const.sem}\t${subject}\t${j}\tsus\tother2\t${e[4]}\n")
-                op +=("${Const.sem}\t${subject}\t${j}\tsum\tmidtermexam\t${e[5]}\n")
-                op +=("${Const.sem}\t${subject}\t${j}\tsum\tfinalexam\t${e[6]}\n")
-                op +=("${Const.sem}\t${subject}\t${j}\tsum\tother3\t${e[7]}\n")
+                if(gradeNum==3){j=j+9} //G10 G11 G12
+                op +=("${Const.sem}\t${subject}\t${j}\tsus\t${dimrow[0]}\t${e[0]}\t${mapping}\t1\n")
+                op +=("${Const.sem}\t${subject}\t${j}\tsus\t${dimrow[1]}\t${e[1]}\t${mapping}\t2\n")
+                op +=("${Const.sem}\t${subject}\t${j}\tsus\t${dimrow[2]}\t${e[2]}\t${mapping}\t3\n")
+                op +=("${Const.sem}\t${subject}\t${j}\tsus\t${dimrow[3]}\t${e[3]}\t${mapping}\t4\n")
+                op +=("${Const.sem}\t${subject}\t${j}\tsus\t${dimrow[4]}\t${e[4]}\t${mapping}\t5\n")
+                op +=("${Const.sem}\t${subject}\t${j}\tsum\t${dimrow[5]}\t${e[5]}\t${mapping}\t6\n")
+                op +=("${Const.sem}\t${subject}\t${j}\tsum\t${dimrow[6]}\t${e[6]}\t${mapping}\t7\n")
+                op +=("${Const.sem}\t${subject}\t${j}\tsum\t${dimrow[7]}\t${e[7]}\t${mapping}\t8\n")
             }
         }
         println(op)
@@ -160,10 +198,12 @@ comment on COLUMN bi_reportv11.grade is '0.班级名';
 
 //        parse(9)
 ////        //开始解析初中小学部
-//        eh.setSheet("评价比例(1-9)")
+        eh.setSheet("评价比例(1-9)")
 //        parse221(9)
-        eh.setSheet("评价比例(10-12)")
-        parse221(3)
+        parse22(9)
+
+//        eh.setSheet("评价比例(10-12)")
+//        parse221(3)
 ////        println(h)
         TextHelper.printToFile(wordListPath, op)
     }
