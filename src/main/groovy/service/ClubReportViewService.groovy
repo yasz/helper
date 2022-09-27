@@ -16,7 +16,7 @@ class ClubReportViewService {
 
         def fileList = []
         new Excelhelper("C:\\Users\\yangj\\Downloads\\俱乐部评估表2.xlsx").read().eachWithIndex { row, i ->
-            if (i < 3) {
+            if (i < 2) {
                 return
             }
             def paras = [:]

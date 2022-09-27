@@ -27,7 +27,7 @@ class ReportViewService2 {
         def db = DBHelper.instance
         OutputStream pdfOs = new FileOutputStream("222.pdf")
 //        ['1v', '2v', '3v','3e', '4v', '4e', '5v', '5e', '6v', '7v', '8v', '9v', '10v', '11v', '12v']
-        def grades = ['1v', '2v', '3v','3e', '4v', '4e', '5v', '5e', '6v', '7v', '8v', '9v', '10v', '11v']
+        def grades = ['1v','1e', '2v','2e', '3v','3e', '4v', '4e', '5v', '5e', '6v', '7v', '8v', '9v', '10v', '11v', '12v']
 //        def grades = ['9v']
 
         getByVano(grades, Const.sem, pdfOs, db.conn)
@@ -39,7 +39,9 @@ class ReportViewService2 {
 
     static void getByVano(def classes, String sem, OutputStream pdfOs, Connection conn) {
 //先到处DOCX，最终汇总成PDF
-        def subjectMapping = JSON.parseObject(DBHelper.query("""select to_jsonb(json_object_agg(evaluation_name,json2)) as json3 from 
+        def schoolDays = JSON.parseObject(DBHelper.query("select to_jsonb(json_object_agg(key1,value1)) from  " +
+                "app_variable WHERE KEY1 in ('${Const.sem}junior_schooldays','${Const.sem}senior_schooldays')",conn)[0][0].value)
+        def sql = """select to_jsonb(json_object_agg(evaluation_name,json2)) as json3 from 
 (select 
 evaluation_name,to_jsonb(json_object_agg(subject,json1)) as json2
 from 
@@ -60,12 +62,13 @@ and dim_evaluations.evaluation_name in ('sum','sus')
 GROUP BY 1,2
 )t1
 group by 1
-)t2""", conn)[0][0].value)
+)t2"""
+        println(sql)
+        def subjectMapping = JSON.parseObject(DBHelper.query(sql, conn)[0][0].value)
         def subjectno = JSON.parseObject(DBHelper.query("""select to_jsonb(json_object_agg( subject,"subjectNo")) from subjects
 where enable is true
 """, conn)[0][0].value)
-
-        def attendancejson = JSON.parseObject(DBHelper.query("""select to_jsonb(json_object_agg( vano,json1)) from (
+        sql="""select to_jsonb(json_object_agg( vano,json1)) from (
 select vano,json_object_agg( event_name,count ) as json1 from 
 (
 SELECT vano,case event_name when '迟到' then 'late' else 'absense' end as event_name ,COUNT(*) FROM events.class_event 
@@ -78,7 +81,7 @@ select distinct resultsno,value1
 from 
 forms_results
 WHERE 
-formno='3'
+formno IN ('3','4')
 and key1='vano'
 AND D2S(createtime::date ) = '${Const.sem}'
 ORDER BY 2 DESC
@@ -87,9 +90,10 @@ GROUP BY 1
 )t2
 group by 1
 )t3
-""", conn)[0][0].value)
-
-        def sql = """with attendance as (
+"""
+        println(sql)
+        def attendancejson = JSON.parseObject(DBHelper.query(sql, conn)[0][0].value)
+        sql = """with attendance as (
 select vano,json_object_agg( event_name,count ) as attendance_json from 
 (
 SELECT vano,case event_name when '迟到' then 'late' else 'absense' end as event_name ,COUNT(*) FROM events.class_event 
@@ -138,6 +142,7 @@ group by 1
         def lastyear = "20${Integer.parseInt(sem.substring(0, 2)) - 1}"
         def longtsem = "${lastyear}-20${sem.substring(0, 2)}-${sem.substring(2)}"
         def vanos = [] //用于一个班对应一份汇总报告时记录各个学生学号
+        def suffix = showOriginal ? "_original" : ""
         rs.each { classmates ->
             vanos = []
             String classname = classmates[0]
@@ -155,6 +160,10 @@ group by 1
                     paras[i.key] = i.value
                 }
                 def grade = paras.classname.substring(0, paras.classname.length() - 1)
+                paras["all"]=schoolDays["${Const.sem}junior_schooldays"]
+                if(Integer.parseInt(grade)>9){
+                    paras["all"]=schoolDays["${Const.sem}senior_schooldays"]
+                }
                 def sortSubjects = subjects.sort { subjectno[it.key] }
                 sortSubjects.eachWithIndex { subject, i ->
                     paras["n${sprintf('%02d', i + 1)}"] = subject.key.toUpperCase().replace("高中", "")
@@ -162,14 +171,13 @@ group by 1
                     def sumMapping = subjectMapping["sum"][subject.key] ? subjectMapping["sum"][subject.key][grade] : null
                     paras["s${sprintf('%02d', i + 1)}"] = subject.value.sus
                     paras["t${sprintf('%02d', i + 1)}"] = subject.value.sum
-                    paras["a${sprintf('%02d', i + 1)}"] = a100s[subject.key]
-                    paras["a00"] = a100s.英文
+//                    paras["a${sprintf('%02d', i + 1)}"] = a100s[subject.key]
+//                    paras["a00"] = a100s.英文
                     if (!showOriginal) {
                         paras["s${sprintf('%02d', i + 1)}"] = tool.CalHelper.vascore4(subject.value.sus, susMapping)
                         paras["t${sprintf('%02d', i + 1)}"] = tool.CalHelper.vascore4(subject.value.sum, sumMapping)
-                        paras["a${sprintf('%02d', i + 1)}"] = tool.CalHelper.vascore4(a100s[subject.key])
-                        paras["a00"] = tool.CalHelper.vascore4(a100s.英文)
-
+//                        paras["a${sprintf('%02d', i + 1)}"] = tool.CalHelper.vascore4(a100s[subject.key])
+//                        paras["a00"] = tool.CalHelper.vascore4(a100s.英文)
                     }
                     if (subject.value.sus == null) {
                         paras["s${sprintf('%02d', i + 1)}"] = '-'
@@ -177,7 +185,7 @@ group by 1
                     if (subject.value.sum == null) {
                         paras["t${sprintf('%02d', i + 1)}"] = '-'
                     }
-                    paras["comment${sprintf('%02d', i + 1)}"] = comments ? comments[subject.key] : "-"
+                    paras["comment${sprintf('%02d', i + 1)}"] = comments[subject.key] ? comments[subject.key] : "-"
                 }
                 def minusSubjects = comments.findAll { c ->
                     !subjects.find { s -> c.key == s.key }
@@ -188,14 +196,15 @@ group by 1
                         return
                     }
                     paras["n${sprintf('%02d', subjects.size() + j)}"] = e.key
-                    paras["comment${sprintf('%02d', subjects.size() + j)}"] = e.value
+                    paras["comment${sprintf('%02d', subjects.size() + j)}"] = e.value?e.value:'-'
                     paras["s${sprintf('%02d', subjects.size() + j)}"] = "-"
                     paras["t${sprintf('%02d', subjects.size() + j)}"] = "-"
-                    paras["a${sprintf('%02d', subjects.size() + j)}"] = "-"
+//                    paras["a${sprintf('%02d', subjects.size() + j)}"] = "-"
                     minusCount++
                 }
 
                 paras.comment00 = comments ? comments['班主任'] : "-"
+
                 ibs.each { ib ->
                     paras[ib.key] = ib.value
                 }
@@ -210,22 +219,22 @@ group by 1
                     doc.deleteCol("考试")
                     doc.deleteRow("学识渊博")
                     doc.deleteCol("总评")
-                } else if (sem.endsWith("1")) {
+                } else if (sem.endsWith("1")||sem.endsWith("2")) {
                     doc.deleteCol("总评")
                 }
+//                doc.deleteCol("总评")
                 //删除多余行
                 (subjects.size() + minusCount + 1).upto(18) {
                     doc.deleteRow("n${sprintf('%2d', it)}")
                 }
-                doc.replace(paras).saveAsOutputStream(new FileOutputStream(new File("out/${it.vano}.docx")))
+                doc.replace(paras).saveAsOutputStream(new FileOutputStream(new File("out/${Const.sem}_${it.vano}${suffix}.docx")))
 
             }
-            def suffix = showOriginal ? "_original" : ""
-            def fileList = vanos.collect { vano -> "out/${vano}.docx" }
-            DocxHelper.merge(fileList, "out/${classname}${suffix}.docx")
-            DocxHelper.toPDF("out/${classname}${suffix}.docx", "out/${classname}${suffix}.pdf")
-        }
 
+            def fileList = vanos.collect { vano -> "out/${Const.sem}_${vano}${suffix}.docx" }
+            DocxHelper.merge(fileList, "out/${Const.sem}_${classname}${suffix}.docx")
+            DocxHelper.toPDF("out/${Const.sem}_${classname}${suffix}.docx", "out/${Const.sem}_${classname}${suffix}.pdf")
+        }
 
 
     }

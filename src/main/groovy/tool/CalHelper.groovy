@@ -9,7 +9,6 @@ class CalHelper {
         for (i in 1..100) {
             println(dse1002va100(i,  [72,67,62,52,46,38,1]))
         }
-        println(dse1002va100(62.2))
     }
 
     static Double dse1002va100(def dseScore, def dseLv) {
@@ -35,7 +34,9 @@ class CalHelper {
             return standard[6] + (standard[5] - standard[6]) * (dseScore - dseLv[6]) / (dseLv[5] - dseLv[6])
         } else return 0
     }
-
+    static int vascore4(def score100) {
+        vascore4(score100,null)
+    }
     static int vascore4(def score100, def lv) {
         if (lv == null) {
             lv = [90, 80, 70, 60, 40, 20, 1]

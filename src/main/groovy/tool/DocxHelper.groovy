@@ -1,4 +1,5 @@
 package tool
+import com.aspose.words.Document
 
 import com.aspose.words.Document
 import com.aspose.words.SaveFormat
