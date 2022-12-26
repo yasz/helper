@@ -1,6 +1,7 @@
 package service
 
 import tool.DBHelper
+import tool.DBHelper2
 
 import javax.swing.Box
 import javax.swing.JComponent
@@ -21,18 +22,20 @@ import java.awt.Font
 import java.awt.event.KeyAdapter
 import java.awt.event.KeyEvent;
 
-public class DCClient {
+class DCClient {
 
     private JFrame frame;
     private JTextField textField_1;
     private JPasswordField passwordField;
-
-    static def args
+    static String[] args
     /**
      * Launch the application.
      */
     public static void main(String[] args) {
-        this.args = args
+
+        args =  ['192.168.0.149','postgres','ruianVA123'] as String[] //dev
+        DCClient.args=args
+
         EventQueue.invokeLater(new Runnable() {
             public void run() {
                 try {
@@ -95,14 +98,30 @@ public class DCClient {
             public void actionPerformed(ActionEvent e) {
                 println(textField_1.getText())
                 String id = textField_1.getText()
+                String os = System.getProperty("os.name")
+
                 String password = new String(passwordField.getPassword())
-                String sql = """select 云桌面命令 from va2 where vano='${id}' and 
+                String sql = """select 云桌面命令,云桌面命令2 from va2 where vano='${id}' and 
 vapassword = '${password}'"""
-//                println(sql)
+                println(sql)
                 passwordField.setText("")
 
                 try{
-                    String cmd = new DBHelper(args[0], args[1], args[2]).query(sql)[0][0]
+                    println(DCClient)
+                    String cmd = new DBHelper2(DCClient.args[0], DCClient.args[1], DCClient.args[2]).query(sql)[0][0]
+                    //若是linux
+                    if( os!= null && os.toLowerCase().startsWith("windows")){
+                        println("windows:"+cmd)
+                        def ip = (cmd =~  /\/u:(.*?)\s/)[0][1]
+                        def id1 = (cmd =~  /\/p:(.*?)\s/)[0][1]
+                        def passwd1 = (cmd =~  /\/v:(.*?)\s/)[0][1]
+                        println("${ip} ${id1} ${passwd1}")
+                        //导出rdp配置文件
+
+                    }else{
+                        println("linux:"+cmd)
+                    }
+                    //若是windows
                     Runtime.getRuntime().exec(cmd)
                 }catch(Exception ee) {
                     def msg = ""
@@ -111,7 +130,7 @@ vapassword = '${password}'"""
                             msg = "密码错误"
                             break
                         case "class org.postgresql.util.PSQLException":
-                            msg = "数据库连接错误"
+                            msg = "网络故障，请查看网线是否未连接"
                             break
                     }
                     JOptionPane.showMessageDialog(null, msg+ee.toString(),"提示" ,  JOptionPane.INFORMATION_MESSAGE)
