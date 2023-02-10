@@ -7,12 +7,28 @@ repositories {
     }
 }
 
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "gradle.plugin.com.github.johnrengelman:shadow:7.1.2"
+    }
+}
+
 apply plugin: 'groovy'
 apply plugin: 'java-library'
+apply plugin: 'com.github.johnrengelman.shadow'
+sourceCompatibility = 8
+targetCompatibility = 8
+
 dependencies {
 
     api(
-            'org.codehaus.groovy:groovy-all:3.0.7',
+
+            'org.apache.groovy:groovy-all:4.0.8',
             'org.apache.httpcomponents:httpclient:4.3.6',
             'org.apache.poi:poi:3.17',
             'org.apache.poi:poi-ooxml:3.17',
@@ -23,16 +39,17 @@ dependencies {
             'org.yaml:snakeyaml:1.30',
             'org.postgresql:postgresql:42.2.5',
             'com.alibaba:fastjson:1.2.75',
-            'com.zaxxer:HikariCP:4.0.1',
+            'com.zaxxer:HikariCP:5.0.1',
             'net.lingala.zip4j:zip4j:2.9.1',
             'org.postgresql:postgresql:42.2.20'
 
     )
 
-//    api group: 'org.docx4j', name: 'docx4j-JAXB-Internal', version: '8.2.8'
-//    api group: 'org.docx4j', name: 'docx4j-JAXB-ReferenceImpl', version: '8.2.8'
-    api group: 'org.docx4j', name: 'docx4j-core', version: '11.2.9'
-    api group: 'org.docx4j', name: 'docx4j-JAXB-ReferenceImpl', version: '11.2.9'
+    api group: 'org.docx4j', name: 'docx4j-core', version: '11.4.9'
+    api group: 'org.docx4j', name: 'docx4j-JAXB-ReferenceImpl', version: '11.4.9'
     api(fileTree(dir: 'lib', include: ['/*.jar']))
+}
+shadowJar {
+    zip64 true
 }
 compileJava.options.encoding = 'UTF-8'

@@ -15,13 +15,14 @@ import tool.DBHelper
 
 
 class Excelhelper2 {
+//专门用于导出Excel模板用
 
     Excelhelper2(InputStream fis) {
 
     }
 
     static s1(String title, String contents,OutputStream os) {
-        //智能分析
+        //考试系统智能分析数据
 
         float top = 90
         float bottom = 60

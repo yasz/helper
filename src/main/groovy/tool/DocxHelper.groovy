@@ -8,6 +8,7 @@ import com.plutext.merge.BlockRange
 import com.plutext.merge.DocumentBuilder
 import common.Const
 import groovy.io.FileType
+import jakarta.xml.bind.JAXBElement
 import org.docx4j.Docx4J
 import org.docx4j.Docx4jProperties
 import org.docx4j.convert.out.Output
@@ -22,7 +23,7 @@ import org.docx4j.wml.Tc
 import org.docx4j.wml.Text
 import org.docx4j.wml.Tr
 
-import javax.xml.bind.JAXBElement
+
 import static groovy.io.FileType.FILES
 /**
 
@@ -124,7 +125,8 @@ class DocxHelper {
 
 
     def replace(def mappings) {
-        documentPart.variableReplace(mappings)
+//        documentPart.variableReplace(mappings)
+        Docx4jUtils.replace(mappings,documentPart,wordMLPackage)
         return this
     }
 
@@ -193,11 +195,7 @@ class DocxHelper {
         return this
     }
 
-    static void main(String[] args) throws Exception {
 
-        merge("C:\\2.dev\\1.java\\ps_bg\\",/^K8B.*docx/,"K8B.docx")
-
-    }
 
 
 }

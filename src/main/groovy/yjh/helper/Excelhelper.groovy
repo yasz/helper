@@ -215,7 +215,7 @@ class Excelhelper {
         read(0, sheet.getLastRowNum())
     }
 
-    List read(def sn) {
+    List read(int sn) {
         read(sn, sheet.getLastRowNum())
     }
     List read(int sn, int en) {
