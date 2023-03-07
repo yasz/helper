@@ -1,7 +1,7 @@
 package tool;
 
-import jakarta.xml.bind.JAXBContext;
-import jakarta.xml.bind.JAXBException;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import org.docx4j.XmlUtils;
 import org.docx4j.jaxb.Context;
 import org.docx4j.model.structure.SectionWrapper;
@@ -12,10 +12,6 @@ import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart;
 import org.docx4j.wml.Document;
 import org.docx4j.wml.Ftr;
 import org.docx4j.wml.Hdr;
-
-
-import java.io.InputStream;
-import java.io.OutputStream;
 
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -97,9 +93,10 @@ public final class Docx4jUtils {
         Document document = documentPart.getContents();
         String wmlTemplate =
                 XmlUtils.marshaltoString(document, true, false, Context.jc);
-        System.out.println(wmlTemplate);
-        System.out.println(DocxVariableClearUtils.doCleanDocumentPart(wmlTemplate, Context.jc));
-        document = (Document) XmlUtils.unwrap(DocxVariableClearUtils.doCleanDocumentPart(wmlTemplate, Context.jc));
+        System.out.println("before clean:"+wmlTemplate);
+        Object afterClean=DocxVariableClearUtils.doCleanDocumentPart(wmlTemplate, Context.jc);
+        document = (Document) XmlUtils.unwrap(afterClean);
+
         documentPart.setContents(document);
 
         return true;
@@ -208,9 +205,9 @@ public final class Docx4jUtils {
                             String rawKey = documentBuilder.substring(keyStartIndex, keyEndIndex);
                             // 干掉多余标签
                             String mappingKey = XML_PATTERN.matcher(rawKey).replaceAll("");
-
+//                            System.out.println(mappingKey);
+                            newDocumentBuilder.append(mappingKey);
                             lastWriteIndex = keyEndIndex;
-
                             curStatus = NONE_START;
                             keyStartIndex = NONE_START_INDEX;
                         }
@@ -223,7 +220,7 @@ public final class Docx4jUtils {
             if (lastWriteIndex < documentBuilder.length()) {
                 newDocumentBuilder.append(documentBuilder.substring(lastWriteIndex));
             }
-            System.out.println(newDocumentBuilder.toString());
+//            System.out.println("after clean:"+newDocumentBuilder.toString());
             return XmlUtils.unmarshalString(newDocumentBuilder.toString());
         }
     }

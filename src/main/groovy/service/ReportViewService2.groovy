@@ -1,6 +1,7 @@
 package service
 
 import com.alibaba.fastjson.JSON
+import common.AsposeRegister
 import common.Const
 import tool.DBHelper
 import tool.DocxHelper
@@ -11,36 +12,31 @@ import java.sql.Connection
  * Created by Peter.Yang on 2021/1/22.
  */
 class ReportViewService2 {
+    static{
+        AsposeRegister.registerAll()
+    }
 
-
-    static def classname = """3e""".split("\n")
     static boolean showOriginal = true
 
-    static void merge(String[] files) {
-        classname.eachWithIndex { String classname, int i ->
-//
-            DocxHelper.toPDF("out/${classname}.docx", "out/${classname}.pdf")
-        }
-    }
+
 
     static void main(String[] args) {
         def db = DBHelper.instance
-        OutputStream pdfOs = new FileOutputStream("222.pdf")
-//        ['1v', '2v', '3v','3e', '4v', '4e', '5v', '5e', '6v', '7v', '8v', '9v', '10v', '11v', '12v']
-        def grades = ['1v','1e', '2v','2e', '3v','3e', '4v', '4e', '5v', '5e', '6v', '7v', '8v', '9v', '10v', '11v', '12v']
-//        def grades = ['9v']
+        OutputStream pdfOs = new FileOutputStream("231.pdf")
+        def classnames = ['10v','11v','12v']
 
-        getByVano(grades, Const.sem, pdfOs, db.conn)
-//        ReportViewService2.showOriginal = true
-//        getByVano(grades, '202', pdfOs, db.conn)
-//        ['1v', '2v','2e','3v','3e','4v','4e','5v','6v','7v','8v','9v','10v','11v','12v'],
+        getByVano(classnames, Const.sem, pdfOs, db.conn)
+
         return
     }
 
-    static void getByVano(def classes, String sem, OutputStream pdfOs, Connection conn) {
+    static void getByVano(def classnames, String sem, OutputStream pdfOs, Connection conn) {
 //先到处DOCX，最终汇总成PDF
-        def schoolDays = JSON.parseObject(DBHelper.query("select to_jsonb(json_object_agg(key1,value1)) from  " +
-                "app_variable WHERE KEY1 in ('${Const.sem}junior_schooldays','${Const.sem}senior_schooldays')",conn)[0][0].value)
+        def sqlSchoolDays = """select to_jsonb(json_object_agg(key1,value1)) from  
+app_variable WHERE KEY1 in ('${Const.sem}junior_schooldays','${Const.sem}senior_schooldays')
+""".toString()
+
+        def schoolDays = JSON.parseObject(DBHelper.query(sqlSchoolDays,conn)[0][0].value)
         def sql = """select to_jsonb(json_object_agg(evaluation_name,json2)) as json3 from 
 (select 
 evaluation_name,to_jsonb(json_object_agg(subject,json1)) as json2
@@ -98,7 +94,7 @@ select vano,json_object_agg( event_name,count ) as attendance_json from
 (
 SELECT vano,case event_name when '迟到' then 'late' else 'absense' end as event_name ,COUNT(*) FROM events.class_event 
 WHERE EVENT_NAME IN ('迟到','旷课')
-AND D2S(event_date)='222'
+AND D2S(event_date)='${Const.sem}'
 GROUP BY 1,2
 UNION
 SELECT VALUE1,'leave' as event_name,COUNT(*) AS c1 FROM (
@@ -134,7 +130,7 @@ FROM
 \tleft join a100 t6 on t1.vano=t6.vano
 WHERE
 \tT1.SEM = '${Const.sem}'  
-and t1.classname in ('${classes.join("','")}')
+and t1.classname in ('${classnames.join("','")}')
 )A1
 group by 1
 """

@@ -1,23 +1,15 @@
 package tool
-import com.aspose.words.Document
+
 
 import com.aspose.words.Document
 import com.aspose.words.SaveFormat
-import com.aspose.words.SaveOptions
 import com.plutext.merge.BlockRange
 import com.plutext.merge.DocumentBuilder
-import common.Const
-import groovy.io.FileType
-import jakarta.xml.bind.JAXBElement
+import javax.xml.bind.JAXBElement
 import org.docx4j.Docx4J
-import org.docx4j.Docx4jProperties
-import org.docx4j.convert.out.Output
-import org.docx4j.model.datastorage.migration.VariablePrepare;
+import org.docx4j.model.datastorage.migration.VariablePrepare
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
-
 import org.docx4j.openpackaging.parts.WordprocessingML.MainDocumentPart
-import org.docx4j.toc.TocGenerator
-import org.docx4j.wml.ContentAccessor
 import org.docx4j.wml.Tbl
 import org.docx4j.wml.Tc
 import org.docx4j.wml.Text
@@ -25,6 +17,7 @@ import org.docx4j.wml.Tr
 
 
 import static groovy.io.FileType.FILES
+
 /**
 
  * 收入证明模板示例
@@ -61,24 +54,26 @@ class DocxHelper {
             }
             sb.append(line);
         }
-        return sb.toString().replaceAll(" +"," ");
+        return sb.toString().replaceAll(" +", " ");
     }
-    static merge(String path,String reg,String outPath){
+
+    static merge(String path, String reg, String outPath) {
         def files = []
         new File(path).eachFileRecurse() {
-            if(it.name ==~ reg) {
+            if (it.name ==~ reg) {
                 files += it.toString()
             }
         }
-        merge(files,outPath)
+        merge(files, outPath)
     }
+
     static merge(List<String> files, String outPath) {
 
         List<BlockRange> blockRanges = new ArrayList<BlockRange>();
         files.eachWithIndex { String filePath, i ->
 
             BlockRange block = new BlockRange(WordprocessingMLPackage.load(new File(filePath)
-                    ));
+            ));
             blockRanges.add(block);
             block.setStyleHandler(BlockRange.StyleHandler.RENAME_RETAIN);
             block.setNumberingHandler(BlockRange.NumberingHandler.ADD_NEW_LIST);
@@ -93,6 +88,8 @@ class DocxHelper {
         DocumentBuilder documentBuilder = new DocumentBuilder();
         WordprocessingMLPackage wordMLPackage = documentBuilder.buildOpenDocument(blockRanges);
         Docx4J.save(wordMLPackage, new File(outPath));
+
+        return true
     }
 
     def saveAs(String outputPath) {
@@ -100,18 +97,20 @@ class DocxHelper {
         return this
     }
 
-    def saveAsPDF(String outputPath){
+    def saveAsPDF(String outputPath) {
         OutputStream os = new ByteArrayOutputStream()
         Docx4J.save(wordMLPackage, os)
         new Document(new ByteArrayInputStream(os.toByteArray())).save(outputPath)
         return
     }
-    def saveAsPDFOutputStream(OutputStream pdfOs){
+
+    def saveAsPDFOutputStream(OutputStream pdfOs) {
         OutputStream docOs = new ByteArrayOutputStream()
         Docx4J.save(wordMLPackage, docOs)
         new Document(new ByteArrayInputStream(docOs.toByteArray())).save(pdfOs, SaveFormat.PDF)
         return
     }
+
     def saveAsOutputStream(OutputStream os) {
         Docx4J.save(wordMLPackage, os)
         return os
@@ -123,10 +122,9 @@ class DocxHelper {
     }
 
 
-
     def replace(def mappings) {
 //        documentPart.variableReplace(mappings)
-        Docx4jUtils.replace(mappings,documentPart,wordMLPackage)
+        Docx4jUtils.replace(mappings, documentPart, wordMLPackage)
         return this
     }
 
@@ -194,8 +192,6 @@ class DocxHelper {
         }
         return this
     }
-
-
 
 
 }

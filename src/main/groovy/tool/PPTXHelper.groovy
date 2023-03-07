@@ -36,16 +36,6 @@ class PPTXHelper {
         new Presentation(new ByteArrayInputStream(docOs.toByteArray())).save(pdfOs, SaveFormat.Pdf)
         return
     }
-
-    def saveAsOutputStream(OutputStream os){
-//        OutputStream docOs = new ByteArrayOutputStream()
-//        presentationMLPackage.save(docOs)
-//        new Presentation(new ByteArrayInputStream(docOs.toByteArray())).save(os, SaveFormat.Pptx)
-        presentationMLPackage.save(os)
-
-        return
-    }
-
     PPTXHelper(String filePath) {
         /**
          * created by yang on 11:21 2018/1/16.

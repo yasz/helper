@@ -1,5 +1,6 @@
 group 'praise.site'
 version '1.2'
+
 repositories {
     mavenCentral()
     maven {
@@ -45,11 +46,19 @@ dependencies {
 
     )
 
-    api group: 'org.docx4j', name: 'docx4j-core', version: '11.4.9'
-    api group: 'org.docx4j', name: 'docx4j-JAXB-ReferenceImpl', version: '11.4.9'
+    api group: 'org.docx4j', name: 'docx4j-core', version: '11.2.9'
+    api group: 'org.docx4j', name: 'docx4j-JAXB-ReferenceImpl', version: '11.2.9'
+    testImplementation group: 'org.spockframework', name: 'spock-core', version: '2.3-groovy-4.0'
     api(fileTree(dir: 'lib', include: ['/*.jar']))
+
+}
+test {
+    useJUnitPlatform()
+    testLogging {
+        events "passed", "skipped", "failed"
+    }
 }
 shadowJar {
     zip64 true
 }
-compileJava.options.encoding = 'UTF-8'
+
