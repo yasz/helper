@@ -16,7 +16,7 @@ class ReportViewService2 {
         AsposeRegister.registerAll()
     }
 
-    static boolean showOriginal = true
+    static boolean showOriginal = false
 
 
 
@@ -167,13 +167,11 @@ group by 1
                     def sumMapping = subjectMapping["sum"][subject.key] ? subjectMapping["sum"][subject.key][grade] : null
                     paras["s${sprintf('%02d', i + 1)}"] = subject.value.sus
                     paras["t${sprintf('%02d', i + 1)}"] = subject.value.sum
-//                    paras["a${sprintf('%02d', i + 1)}"] = a100s[subject.key]
-//                    paras["a00"] = a100s.英文
+
                     if (!showOriginal) {
                         paras["s${sprintf('%02d', i + 1)}"] = tool.CalHelper.vascore4(subject.value.sus, susMapping)
                         paras["t${sprintf('%02d', i + 1)}"] = tool.CalHelper.vascore4(subject.value.sum, sumMapping)
-//                        paras["a${sprintf('%02d', i + 1)}"] = tool.CalHelper.vascore4(a100s[subject.key])
-//                        paras["a00"] = tool.CalHelper.vascore4(a100s.英文)
+
                     }
                     if (subject.value.sus == null) {
                         paras["s${sprintf('%02d', i + 1)}"] = '-'
@@ -195,7 +193,7 @@ group by 1
                     paras["comment${sprintf('%02d', subjects.size() + j)}"] = e.value?e.value:'-'
                     paras["s${sprintf('%02d', subjects.size() + j)}"] = "-"
                     paras["t${sprintf('%02d', subjects.size() + j)}"] = "-"
-//                    paras["a${sprintf('%02d', subjects.size() + j)}"] = "-"
+
                     minusCount++
                 }
 
@@ -215,11 +213,11 @@ group by 1
                     doc.deleteCol("考试")
                     doc.deleteRow("学识渊博")
                     doc.deleteCol("总评")
-                } else if (sem.endsWith("1")||sem.endsWith("2")) {
+                }
+                else if (sem.endsWith("1")||sem.endsWith("2")) {
                     doc.deleteCol("总评")
                 }
-//                doc.deleteCol("总评")
-                //删除多余行
+
                 (subjects.size() + minusCount + 1).upto(18) {
                     doc.deleteRow("n${sprintf('%2d', it)}")
                 }

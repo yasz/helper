@@ -1,9 +1,8 @@
 package service
 
-import tool.DBHelper
 import tool.DBHelper2
 
-import javax.swing.Box
+
 import javax.swing.JComponent
 import javax.swing.JOptionPane
 import javax.swing.KeyStroke;
@@ -33,7 +32,7 @@ class DCClient {
      */
     public static void main(String[] args) {
 
-        args =  ['192.168.0.149','postgres','ruianVA123'] as String[] //dev
+        args =  ['ruianva.cn','postgres','ruianVA123'] as String[] //dev
         DCClient.args=args
 
         EventQueue.invokeLater(new Runnable() {
@@ -112,17 +111,19 @@ vapassword = '${password}'"""
                     //若是linux
                     if( os!= null && os.toLowerCase().startsWith("windows")){
                         println("windows:"+cmd)
-                        def ip = (cmd =~  /\/u:(.*?)\s/)[0][1]
-                        def id1 = (cmd =~  /\/p:(.*?)\s/)[0][1]
-                        def passwd1 = (cmd =~  /\/v:(.*?)\s/)[0][1]
-                        println("${ip} ${id1} ${passwd1}")
-                        //导出rdp配置文件
+                        def ip = (cmd =~  /\/v:(.*?)\s/)[0][1]
+                        def id1 = (cmd =~  /\/u:(.*?)\s/)[0][1]
+                        def passwd1 = (cmd =~  /\/p:(.*?)\s/)[0][1]
+                        cmd = "cmdkey /generic:${ip.toString().replaceAll(/:\d+/,"")} /user:${id1} /pass:${passwd1}"
+                        Runtime.getRuntime().exec(cmd)
+                        Runtime.getRuntime().exec( "mstsc /v:${ip}")
 
+                        //导出rdp配置文件
                     }else{
                         println("linux:"+cmd)
+                        Runtime.getRuntime().exec(cmd)
                     }
-                    //若是windows
-                    Runtime.getRuntime().exec(cmd)
+                    println("执行命令${cmd}")
                 }catch(Exception ee) {
                     def msg = ""
                     switch (ee.getClass().toString()) {
