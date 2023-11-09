@@ -16,21 +16,32 @@ class ReportViewService2 {
         AsposeRegister.registerAll()
     }
 
-    static boolean showOriginal = false
+    static boolean showOriginal = true
 
 
 
     static void main(String[] args) {
         def db = DBHelper.instance
-        OutputStream pdfOs = new FileOutputStream("231.pdf")
-        def classnames = ['10v','11v','12v']
 
-        getByVano(classnames, Const.sem, pdfOs, db.conn)
+//        def classnames = ['11v']
+//        def classnames = ['6v']
+        def classnames = ['1v','2v','3v','4v','5v','6v','6e','5e','4e','7v','8v','9v','10v','11v','12v']
+
+        getByVano(classnames, Const.sem,  db.conn)
+        this.showOriginal = false
+        getByVano(classnames, Const.sem,  db.conn)
+//
+        Const.sem="231"
+        this.showOriginal = true
+        getByVano(classnames, Const.sem,  db.conn)
+        this.showOriginal = false
+        getByVano(classnames, Const.sem,  db.conn)
+
 
         return
     }
 
-    static void getByVano(def classnames, String sem, OutputStream pdfOs, Connection conn) {
+    static void getByVano(def classnames, String sem,  Connection conn) {
 //先到处DOCX，最终汇总成PDF
         def sqlSchoolDays = """select to_jsonb(json_object_agg(key1,value1)) from  
 app_variable WHERE KEY1 in ('${Const.sem}junior_schooldays','${Const.sem}senior_schooldays')
@@ -59,7 +70,7 @@ GROUP BY 1,2
 )t1
 group by 1
 )t2"""
-        println(sql)
+        println(sql+";")
         def subjectMapping = JSON.parseObject(DBHelper.query(sql, conn)[0][0].value)
         def subjectno = JSON.parseObject(DBHelper.query("""select to_jsonb(json_object_agg( subject,"subjectNo")) from subjects
 where enable is true
@@ -87,7 +98,7 @@ GROUP BY 1
 group by 1
 )t3
 """
-        println(sql)
+        println(sql+";")
         def attendancejson = JSON.parseObject(DBHelper.query(sql, conn)[0][0].value)
         sql = """with attendance as (
 select vano,json_object_agg( event_name,count ) as attendance_json from 
@@ -134,6 +145,7 @@ and t1.classname in ('${classnames.join("','")}')
 )A1
 group by 1
 """
+        println(sql+";")
         def rs = DBHelper.query(sql, conn)
         def lastyear = "20${Integer.parseInt(sem.substring(0, 2)) - 1}"
         def longtsem = "${lastyear}-20${sem.substring(0, 2)}-${sem.substring(2)}"
@@ -152,8 +164,12 @@ group by 1
                 def comments = JSON.parseObject(it.comment_json.toString())
                 vanos += it.vano
                 def paras = [sem: longtsem]
+                println(vanos)
                 it.each { i ->
                     paras[i.key] = i.value
+                }
+                if(it.vano=='190226'){
+                    println(1)
                 }
                 def grade = paras.classname.substring(0, paras.classname.length() - 1)
                 paras["all"]=schoolDays["${Const.sem}junior_schooldays"]
@@ -209,7 +225,7 @@ group by 1
                 attendancejson[it.vano] ? paras += attendancejson[it.vano] : 0
                 def doc = new DocxHelper(Const.tmpPath)
                 if (paras.classname.startsWith("1v") and !showOriginal) {
-                    doc.deleteCol("日常")
+//                    doc.deleteCol("日常")
                     doc.deleteCol("考试")
                     doc.deleteRow("学识渊博")
                     doc.deleteCol("总评")

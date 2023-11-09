@@ -1,0 +1,9 @@
+pgsql1:
+  jdbc: "jdbc:postgresql://localhost:5432/postgres"
+  username: "postgres"
+  password: "ruianVA123"
+
+sqlite1:
+  jdbc: "jdbc:sqlite:C:/1.dev/1.ws/cd_bg/prisma/db.sqlite"
+  username: ""
+  password: ""
