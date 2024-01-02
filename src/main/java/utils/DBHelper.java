@@ -9,13 +9,14 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.HashMap;
 
 public class DBHelper {
     private static final Map<String, Map<String, String>> config;
     private Connection connection;
     private Sql sql;
     static {
-        Yaml yaml = new Yaml(new Constructor(Map.class));
+        Yaml yaml = new Yaml();
         InputStream inputStream = DBHelper.class.getClassLoader().getResourceAsStream("db.yml");
         config = yaml.load(inputStream);
     }
