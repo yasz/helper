@@ -1,7 +1,7 @@
 
 
 import com.aspose.words.*;
-
+import common.AsposeRegister;
 
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
@@ -10,8 +10,10 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 
 public class ConvertToPDF {
+
     public static void main(String[] args) throws Exception {
-        new Document("D:\\3.ws\\1.idea\\helper\\out\\3e.docx").save("3e.pdf");
+        AsposeRegister.registerAll();
+        new Document("C:\\Users\\yangj\\Documents\\WeChat Files\\yangjiahao072991\\FileStorage\\File\\2023-06\\3.docx").save("3.pdf");
 
         // Save the document in PDF format.
 
