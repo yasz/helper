@@ -20,6 +20,7 @@ class N2Service {
         //词汇表
         def unit = ids.join(",")
         def sqlStr = """SELECT japanese,chinese FROM "JapaneseVocabulary" where unit_id in ($unit) and type1 <> '*' limit 55""".toString()
+        println(sqlStr)
         def dbhelper = new DBHelper("sqlite1")
         def data = dbhelper.query(sqlStr)
         def time = (int) (data.size()*20/60)
@@ -62,6 +63,7 @@ class N2Service {
 
     static void main(String[] args) {
         AsposeRegister.registerWord_v_22_5()
+
         Map<String, String[]> parsedArgs = parseArguments(args)
 
         if (parsedArgs.containsKey('i') && parsedArgs['i'] && parsedArgs.containsKey('o') && parsedArgs['o']) {

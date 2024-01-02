@@ -5,7 +5,7 @@ import com.aspose.words.Document
 import com.aspose.words.SaveFormat
 import com.plutext.merge.BlockRange
 import com.plutext.merge.DocumentBuilder
-import javax.xml.bind.JAXBElement
+import jakarta.xml.bind.JAXBElement
 import org.docx4j.Docx4J
 import org.docx4j.model.datastorage.migration.VariablePrepare
 import org.docx4j.openpackaging.packages.WordprocessingMLPackage;
@@ -108,7 +108,7 @@ class DocxHelper {
         OutputStream docOs = new ByteArrayOutputStream()
         Docx4J.save(wordMLPackage, docOs)
         new Document(new ByteArrayInputStream(docOs.toByteArray())).save(pdfOs, SaveFormat.PDF)
-        return
+        return pdfOs
     }
 
     def saveAsOutputStream(OutputStream os) {
