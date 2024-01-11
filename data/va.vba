@@ -78,35 +78,32 @@ Sub MatchAndCopyToClipboard()
     ReDim corpusArray(1 To scoreRange.Rows.Count, 1 To scoreRange.Columns.Count)
     
     ' 遍历用户选择的每一列
-    For c = 1 To scoreRange.Columns.Count
-        Dim scoreColumn As Range
-        Set scoreColumn = scoreRange.Columns(c)
+       For c = 1 To scoreRange.Columns.Count
+        Dim title As String
+        title = scoreRange.Cells(1, c).Value  ' 获取标题作为键
         
         ' 遍历每一行
-        For i = 1 To scoreColumn.Rows.Count
+        For i = 1 To scoreRange.Rows.Count
             Dim score As Variant
             Dim corpusFound As Boolean
             corpusFound = False
-            score = scoreColumn.Cells(i, 1).Value
+            score = scoreRange.Cells(i, c).Value ' 获取分数
             
             ' 检查分数是否为数字
             If IsNumeric(score) Then
                 score = CDbl(score)
-                Dim key As Variant, subkey As Variant
-                For Each key In data
-                    For Each subkey In data(key)
-                        Dim minScore As Double, maxScore As Double
-                        minScore = data(key)(subkey)("min")
-                        maxScore = data(key)(subkey)("max")
-                        ' 检查分数是否在当前区间内
-                        If score >= minScore And score < maxScore Then
-                            matchedCorpus = data(key)(subkey)("语料")
-                            corpusFound = True
-                            Exit For
-                        End If
-                    Next subkey
-                    If corpusFound Then Exit For
-                Next key
+                Dim subkey As Variant
+                For Each subkey In data(title)
+                    Dim minScore As Double, maxScore As Double
+                    minScore = data(title)(subkey)("min")
+                    maxScore = data(title)(subkey)("max")
+                    ' 检查分数是否在当前区间内
+                    If score >= minScore And score < maxScore Then
+                        matchedCorpus = data(title)(subkey)("语料")
+                        corpusFound = True
+                        Exit For
+                    End If
+                Next subkey
             End If
             
             ' 如果没有找到匹配的语料，设置为空字符串
@@ -116,6 +113,7 @@ Sub MatchAndCopyToClipboard()
             corpusArray(i, c) = matchedCorpus
         Next i
     Next c
+
     
     ' 将数组转换为一个大的字符串，并复制到剪切板
     Dim clipboardText As String
