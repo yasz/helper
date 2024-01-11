@@ -61,44 +61,61 @@ Sub MatchAndCopyToClipboard()
     ReDim corpusArray(1 To scoreRange.Rows.Count, 1 To scoreRange.Columns.Count)
     
     ' 遍历用户选择的每一列
-    For c = 1 To scoreRange.Columns.Count
-        Dim scoreColumn As Range
-        Set scoreColumn = scoreRange.Columns(c)
-        
-        ' 遍历每一行
-        For i = 1 To scoreColumn.Rows.Count
-            Dim score As Variant
-            Dim corpusFound As Boolean
-            corpusFound = False
-            score = scoreColumn.Cells(i, 1).Value
-            
-            ' 检查分数是否为数字
-            If IsNumeric(score) Then
-                score = CDbl(score)
-                Dim key As Variant, subkey As Variant
-                For Each key In data
-                    For Each subkey In data(key)
-                        Dim minScore As Double, maxScore As Double
-                        minScore = data(key)(subkey)("min")
-                        maxScore = data(key)(subkey)("max")
-                        ' 检查分数是否在当前区间内
-                        If score >= minScore And score < maxScore Then
-                            matchedCorpus = data(key)(subkey)("语料")
-                            corpusFound = True
-                            Exit For
-                        End If
-                    Next subkey
-                    If corpusFound Then Exit For
-                Next key
-            End If
-            
-            ' 如果没有找到匹配的语料，设置为空字符串
-            If Not corpusFound Then matchedCorpus = ""
-            
-            ' 将匹配的语料存储在数组中对应位置
-            corpusArray(i, c) = matchedCorpus
-        Next i
-    Next c
+    ' 遍历用户选择的每一列
+	For c = 1 To scoreRange.Columns.Count
+		Dim scoreColumn As Range
+		Set scoreColumn = scoreRange.Columns(c)
+		
+		' 确定最高分和最低分
+		Dim maxScore As Double, minScore As Double
+		maxScore = Application.WorksheetFunction.Max(scoreColumn)
+		minScore = Application.WorksheetFunction.Min(scoreColumn)
+		
+		' 遍历每一行
+		For i = 1 To scoreColumn.Rows.Count
+			Dim score As Variant
+			Dim corpusFound As Boolean
+			corpusFound = False
+			score = scoreColumn.Cells(i, 1).Value
+			
+			' 检查分数是否为数字
+			If IsNumeric(score) Then
+				score = CDbl(score)
+				Dim key As Variant, subkey As Variant
+				For Each key In data
+					For Each subkey In data(key)
+						Dim minScoreRange As Double, maxScoreRange As Double
+						minScoreRange = data(key)(subkey)("min")
+						maxScoreRange = data(key)(subkey)("max")
+						
+						' 特殊情况：检查最低分的左闭合
+						If score = minScore And score = minScoreRange Then
+							matchedCorpus = data(key)(subkey)("语料")
+							corpusFound = True
+							Exit For
+						' 特殊情况：检查最高分的右闭合
+						ElseIf score = maxScore And score = maxScoreRange Then
+							matchedCorpus = data(key)(subkey)("语料")
+							corpusFound = True
+							Exit For
+						' 正常情况：检查分数是否在当前区间内
+						ElseIf score > minScoreRange And score < maxScoreRange Then
+							matchedCorpus = data(key)(subkey)("语料")
+							corpusFound = True
+							Exit For
+						End If
+					Next subkey
+					If corpusFound Then Exit For
+				Next key
+			End If
+			
+			' 如果没有找到匹配的语料，设置为空字符串
+			If Not corpusFound Then matchedCorpus = ""
+			
+			' 将匹配的语料存储在数组中对应位置
+			corpusArray(i, c) = matchedCorpus
+		Next i
+	Next c
     
     ' 将数组转换为一个大的字符串，并复制到剪切板
     Dim clipboardText As String
