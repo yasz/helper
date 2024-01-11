@@ -75,7 +75,7 @@ Sub MatchAndCopyToClipboard()
     Dim i As Long, c As Long
     Dim matchedCorpus As String
     Dim corpusArray() As String
-    ReDim corpusArray(1 To scoreRange.Rows.Count, 1 To scoreRange.Columns.Count)
+    ReDim corpusArray(2 To scoreRange.Rows.Count, 1 To scoreRange.Columns.Count)
     
     ' 遍历用户选择的每一列
        For c = 1 To scoreRange.Columns.Count
@@ -83,7 +83,7 @@ Sub MatchAndCopyToClipboard()
         title = scoreRange.Cells(1, c).Value  ' 获取标题作为键
         
         ' 遍历每一行
-        For i = 1 To scoreRange.Rows.Count
+        For i = 2 To scoreRange.Rows.Count
             Dim score As Variant
             Dim corpusFound As Boolean
             corpusFound = False
