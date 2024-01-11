@@ -10,7 +10,7 @@ Function ParseData() As Object
     Set dataDict = CreateObject("Scripting.Dictionary")
 
     Dim i As Integer
-    For i = 1 To lastColumn Step 3
+    For i = 4 To lastColumn Step 3
         Dim title As String
         title = ws.Cells(1, i).Value
         
@@ -117,22 +117,27 @@ Sub MatchAndCopyToClipboard()
     
     ' 将数组转换为一个大的字符串，并复制到剪切板
     Dim clipboardText As String
-    clipboardText = ArrayToClipboardText(corpusArray)
+    Set ws = ThisWorkbook.Sheets("语料")
+    clipboardText = ArrayToClipboardText(corpusArray, ws.Cells(2, "A").Value, ws.Cells(2, "B").Value, ws.Cells(2, "C").Value)
+
     CopyTextToClipboard clipboardText
     
     MsgBox "已经复制到剪切板。", vbInformation
 End Sub
 
 ' 将二维数组转换为剪切板文本
-Function ArrayToClipboardText(arr As Variant) As String
+Function ArrayToClipboardText(arr As Variant, spliter As String, prefix As String, suffix As String) As String
     Dim row As Long, col As Long
     Dim clipboardArray() As String
+    
     ReDim clipboardArray(LBound(arr, 1) To UBound(arr, 1))
     
     For row = LBound(arr, 1) To UBound(arr, 1)
+        clipboardArray(row) = prefix
         For col = LBound(arr, 2) To UBound(arr, 2)
-            clipboardArray(row) = clipboardArray(row) & arr(row, col) & IIf(col < UBound(arr, 2), vbTab, "")
+            clipboardArray(row) = clipboardArray(row) & arr(row, col) & IIf(col < UBound(arr, 2), spliter, "")
         Next col
+        clipboardArray(row) = clipboardArray(row) & suffix
     Next row
     
     ArrayToClipboardText = Join(clipboardArray, vbCrLf)
@@ -149,4 +154,5 @@ End Sub
 Sub MapGradesAndCopyToClipboard()
     MatchAndCopyToClipboard
 End Sub
+
 
