@@ -63,7 +63,7 @@ Sub MatchAndCopyToClipboard()
     ' 弹出输入框，让用户选择分数列
     Dim scoreRange As Range
     On Error Resume Next
-    Set scoreRange = Application.InputBox("请选择分数列（带标题）:", Type:=8)
+    Set scoreRange = Application.InputBox("请选择分数列（带标题、姓名列）:", Type:=8)
     If scoreRange Is Nothing Then Exit Sub
     On Error GoTo 0
     
@@ -71,14 +71,19 @@ Sub MatchAndCopyToClipboard()
     Dim data As Object
     Set data = ParseData()
     
+    Dim selectedNames  As Range
+    Set selectedNames = scoreRange.Resize(scoreRange.Rows.Count - 1, 1).Offset(1, 0)
+    
+    ' sgBox "selectedNames Values: " & Join(Application.Transpose(selectedNames.Value), ", ")
+
     ' 准备匹配语料
     Dim i As Long, c As Long
     Dim matchedCorpus As String
     Dim corpusArray() As String
-    ReDim corpusArray(2 To scoreRange.Rows.Count, 1 To scoreRange.Columns.Count)
+    ReDim corpusArray(2 To scoreRange.Rows.Count, 2 To scoreRange.Columns.Count)
     
     ' 遍历用户选择的每一列
-       For c = 1 To scoreRange.Columns.Count
+       For c = 2 To scoreRange.Columns.Count
         Dim title As String
         title = scoreRange.Cells(1, c).Value  ' 获取标题作为键
         
@@ -119,11 +124,50 @@ Sub MatchAndCopyToClipboard()
     Dim clipboardText As String
     Set ws = ThisWorkbook.Sheets("语料")
     clipboardText = ArrayToClipboardText(corpusArray, ws.Cells(2, "A").Value, ws.Cells(2, "B").Value, ws.Cells(2, "C").Value)
-
+    
+    clipboardText = ReplaceText(clipboardText, selectedNames)
     CopyTextToClipboard clipboardText
     
     MsgBox "已经复制到剪切板。", vbInformation
 End Sub
+
+Function ReplaceText(inputText As String, selectedNames As Range) As String
+    Dim lines() As String
+    Dim rulesSheet As Worksheet
+    Dim i As Integer
+    Dim found As Range
+    Dim resultText As String
+
+    lines = Split(inputText, vbCrLf)
+
+    
+    ' 设置替换规则的Sheet
+    Set rulesSheet = ThisWorkbook.Sheets("替换规则")
+
+    ' 遍历传入文本的每一行
+    For i = LBound(lines) To UBound(lines)
+        ' 在替换规则Sheet中查找匹配的姓名
+        Set found = rulesSheet.Columns(1).Find(What:=selectedNames.Cells(i + 1, 1).Value, LookIn:=xlValues)
+
+        If Not found Is Nothing Then
+            ' 根据找到的姓名所在行，应用所有替换规则
+            For j = 2 To rulesSheet.Columns.Count Step 2 ' 遍历所有的规则列对
+                If j + 1 <= rulesSheet.Columns.Count Then
+                    If rulesSheet.Cells(found.row, j).Value <> "" Then
+                        lines(i) = Replace(lines(i), rulesSheet.Cells(found.row, j).Value, rulesSheet.Cells(found.row, j + 1).Value)
+                    End If
+                End If
+            Next j
+        End If
+    Next i
+
+   ' 将替换后的文本合并
+    resultText = Join(lines, vbCrLf)
+
+    ' 返回处理后的文本
+    ReplaceText = resultText
+End Function
+
 
 ' 将二维数组转换为剪切板文本
 Function ArrayToClipboardText(arr As Variant, spliter As String, prefix As String, suffix As String) As String
