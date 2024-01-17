@@ -54,6 +54,51 @@ public class DBHelper {
         }
         return resultList;
     }
+    public long executeInsertAndGetId(String sqlStr) throws SQLException {
+        Statement stmt = null;
+        ResultSet rs = null;
+        try {
+            // 执行插入操作
+            stmt = this.connection.createStatement();
+            int affectedRows = stmt.executeUpdate(sqlStr);
+
+            // 检查是否成功插入了数据
+            if (affectedRows == 0) {
+                throw new SQLException("Insert failed, no rows affected.");
+            }
+
+            // 查询最后插入行的ID
+            rs = stmt.executeQuery("SELECT last_insert_rowid()");
+            if (rs.next()) {
+                return rs.getLong(1); // 返回自增主键的值
+            } else {
+                throw new SQLException("Insert failed, no ID obtained.");
+            }
+        } finally {
+            if (rs != null) try { rs.close(); } catch (SQLException e) { /* Ignored */ }
+            if (stmt != null) try { stmt.close(); } catch (SQLException e) { /* Ignored */ }
+        }
+    }
+
+
+    public boolean executeUpdate(String sqlStr) throws SQLException {
+        Statement stmt = null;
+        try {
+            // 创建Statement对象
+            stmt = this.connection.createStatement();
+
+            // 执行SQL语句
+            int affectedRows = stmt.executeUpdate(sqlStr);
+
+            // 如果受影响的行数大于0，则操作成功
+            return affectedRows > 0;
+        } finally {
+            // 确保Statement对象被关闭
+            if (stmt != null) try { stmt.close(); } catch (SQLException e) { /* Ignored */ }
+            // Note: Do not close the connection here if you intend to reuse it.
+        }
+    }
+
 
     // Other utility methods (like close) if necessary
     public void close() throws SQLException {

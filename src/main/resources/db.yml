@@ -7,3 +7,8 @@ sqlite1:
   jdbc: "jdbc:sqlite:C:/1.dev/1.ws/cd_bg/prisma/db.sqlite"
   username: ""
   password: ""
+
+sqlite2: #helper自带的
+  jdbc: "jdbc:sqlite:./data/bom.sqlite"
+  username: ""
+  password: ""

@@ -1,5 +1,8 @@
 plugins {
     id "com.github.johnrengelman.shadow" version "8.1.1"
+    id 'groovy'
+    id 'java-library'
+    id 'application'
 }
 group "praise.site"
 repositories {
@@ -8,38 +11,30 @@ repositories {
         url 'https://dl.bintray.com/americanexpress/maven/'
     }
 }
-apply plugin: 'groovy'
-apply plugin: 'java-library'
-apply plugin: 'com.github.johnrengelman.shadow'
+
 dependencies {
     api(
             'org.yaml:snakeyaml:2.2',
-            'org.xerial:sqlite-jdbc:3.43.2.2',
             'org.apache.groovy:groovy-all:4.0.15',
+            'org.xerial:sqlite-jdbc:3.43.2.2',
+            'org.postgresql:postgresql:42.2.20',
+
             'org.apache.httpcomponents:httpclient:4.3.6',
             'org.apache.poi:poi:3.17',
             'org.apache.poi:poi-ooxml:3.17',
             'org.apache.poi:poi-ooxml-schemas:3.17',
             'org.apache.poi:poi-scratchpad:3.17',
-            'org.jsoup:jsoup:1.11.2',
             'org.apache.poi:ooxml-schemas:1.4',
-            'org.postgresql:postgresql:42.2.5',
             'com.alibaba:fastjson:1.2.75',
             'com.zaxxer:HikariCP:5.1.0',
             'net.lingala.zip4j:zip4j:2.9.1',
             'org.docx4j:docx4j-ImportXHTML:11.4.8',
-            'org.postgresql:postgresql:42.2.20'
+            'org.docx4j:docx4j-core:11.4.9',
+            'org.docx4j:docx4j-JAXB-ReferenceImpl:11.4.9',
 
+            fileTree(dir: 'lib', include: ['/*.jar'])
     )
-
-    api group: 'org.docx4j', name: 'docx4j-core', version: '11.4.9'
-    api group: 'org.docx4j', name: 'docx4j-JAXB-ReferenceImpl', version: '11.4.9'
-    // https://mvnrepository.com/artifact/org.docx4j/docx4j-ImportXHTML
-
-
     testImplementation group: 'org.spockframework', name: 'spock-core', version: '2.3-groovy-4.0'
-    api(fileTree(dir: 'lib', include: ['/*.jar']))
-
 }
 test {
     useJUnitPlatform()
@@ -52,6 +47,9 @@ shadowJar {
 }
 
 tasks.withType(JavaCompile) {
-
     options.encoding = "UTF-8"
+}
+application {
+    mainClass.set('service.MumoBomExportTxt')
+    
 }
